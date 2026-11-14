@@ -955,6 +955,42 @@ mod tests {
     }
 
     #[test]
+    fn ft_receiver_accounts_only_the_configured_tag_token() {
+        let key = signing_key();
+        let mut contract = fresh_contract(&key);
+
+        context("tag.testnet");
+        let accepted = contract.ft_on_transfer(
+            "sender.testnet".parse().unwrap(), U128(125), String::new());
+        assert_eq!(accepted, U128(0));
+        assert_eq!(contract.treasury(), U128(125));
+
+        context("other-token.testnet");
+        let returned = contract.ft_on_transfer(
+            "sender.testnet".parse().unwrap(), U128(50), String::new());
+        assert_eq!(returned, U128(50));
+        assert_eq!(contract.treasury(), U128(125));
+    }
+
+    #[test]
+    fn native_near_deposits_only_increase_the_buyback_pot() {
+        let key = signing_key();
+        let mut contract = fresh_contract(&key);
+        let mut builder = VMContextBuilder::new();
+        builder
+            .current_account_id("mech.testnet".parse().unwrap())
+            .predecessor_account_id("alice.testnet".parse().unwrap())
+            .attached_deposit(NearToken::from_near(2));
+        testing_env!(builder.build());
+
+        contract.deposit_near();
+
+        assert_eq!(contract.pots().0, U128(0));
+        assert_eq!(contract.pots().1, U128(2 * 10u128.pow(24)));
+        assert_eq!(contract.treasury(), U128(0));
+    }
+
+    #[test]
     fn account_day_is_unix_day() {
         context("alice.testnet");
         let day = env::block_timestamp() / NANOS_PER_SECOND / SECONDS_PER_DAY;

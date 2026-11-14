@@ -12,6 +12,9 @@ test command is not proof unless the assertions cover these properties.
    reduces TAG balance by exactly the 95% user transfer; the 5% remains.
    Test failed transfer/callback behavior. Verify `refill()` only changes
    treasury by the received TAG and does not silently spend or lose NEAR.
+   Worker unit tests cover the TAG receiver ledger, unrelated-token refund,
+   native-NEAR pot separation, and failed-claim restoration; a cross-contract
+   NEP-141 mock integration test remains open.
 3. **Each epoch stays within its pot.** Pot is at most 10% of unreserved
    treasury (accounted treasury less all outstanding gross claims). Exercise
    zero points, zero valid
