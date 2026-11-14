@@ -33,7 +33,9 @@ epoch chip ticking, the three trust chips.
 the contract is real — Code tab, the settled epoch via get_epoch (day
 20771), the settle tx F2Nm89EqZpoTZ6VLczaC1NtCweksvh17ModHy3HQUAoK,
 then a couple of the 8 claim txs showing the 95/5 amounts.
-1:15–1:40 — terminal: run the reserved validator claim:
+1:15–1:40 — DONE: reserved validator claim executed by the reviewer during
+edit, tx BSj8NJpfKEHgHw45hHwXt1kADtZB26exBEWdgJNuNHZb (95/5 split
+verified in-receipt); shown as the receipts slide in the final cut.
 `export NEAR_TESTNET_RPC=https://rpc.testnet.fastnear.com && near call tagmech-izecube.testnet claim '{}' --accountId tagvalidator1.testnet --gas 100000000000000 --networkId testnet`
 then open the resulting tx hash on nearblocks — the 95% / 5% split shows
 in one transaction.
@@ -44,7 +46,7 @@ the repo link.
 
 - [ ] Public repo: github.com/Izecrypt/near-tag (README complete, honesty
       section present)
-- [ ] Demo video < 3 min, hosted on YouTube (public or unlisted)
+- [x] Demo video: ~/Desktop/neartag-demo.mp4 (69s, 1920x1080, 5.7MB — attach to the X post; no YouTube needed)
 - [ ] Deployed testnet contract link (explorer)
 - [x] Live site URL (https://ntag.trenchesnetwork.xyz; tag.* redirects)
 - [ ] Submission form: nearhackathon.com, track = memecoins
