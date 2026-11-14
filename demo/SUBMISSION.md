@@ -29,8 +29,7 @@
       section present)
 - [ ] Demo video < 3 min, hosted on YouTube (public or unlisted)
 - [ ] Deployed testnet contract link (explorer)
-- [ ] Live site URL (tag.trenchesnetwork.xyz if DNS lands in time, else
-      server IP / GitHub Pages)
+- [x] Live site URL (https://ntag.trenchesnetwork.xyz; tag.* redirects)
 - [ ] Submission form: nearhackathon.com, track = memecoins
 - [ ] Public demo post on X (after submission, per hackathon rules)
 - [ ] Deadline: 2026-11-14 23:59 UTC

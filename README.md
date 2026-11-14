@@ -38,7 +38,8 @@ the chart.
 
 Deployed and demonstrated on NEAR testnet (2026-11-14). Mechanics contract:
 [`tagmech-izecube.testnet`](https://testnet.nearblocks.io/address/tagmech-izecube.testnet).
-Live site: https://tag.trenchesnetwork.xyz (reads the contract live).
+Live site: https://ntag.trenchesnetwork.xyz (reads the contract live;
+tag.trenchesnetwork.xyz 301-redirects there).
 
 One synthetic, labeled demo epoch (day 20771) was settled with 8 demo users
 and 2 on-chain validators: pot exactly 10% of treasury, 48 validator votes,

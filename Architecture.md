@@ -172,7 +172,7 @@ Single `index.html`, dark, monospace accents (match izecube.trenchesnetwork.xyz
 lab-notebook style). Reads contract views via near-api-js RPC. Sections:
 params table, treasury + pots, epoch log, top taggers (from epoch log +
 entitlements events), claim box (MyNearWallet connect → claim()). Deploy to
-Trenches server at `tag.trenchesnetwork.xyz` (reviewer handles DNS+nginx).
+Trenches server at `ntag.trenchesnetwork.xyz` (reviewer handles DNS+nginx).
 
 ## 5. Simulation (Python, matplotlib optional) — `sim/`
 
