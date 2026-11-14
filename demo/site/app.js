@@ -77,23 +77,43 @@ function renderWallet() {
   }
 }
 
+function profileKey(account) { return "tag_profile_" + account; }
+
+function loadProfile(account) {
+  try { return localStorage.getItem(profileKey(account)) || ""; } catch (e) { return ""; }
+}
+
+function saveProfile(account, handle) {
+  try { localStorage.setItem(profileKey(account), handle); } catch (e) {}
+}
+
 async function refreshMyRewards() {
   const big = document.getElementById("my-entitlement");
   const sub = document.getElementById("my-entitlement-sub");
   const claimBtn = document.getElementById("claim-btn");
+  const handleInput = document.getElementById("x-handle");
+  const saveBtn = document.getElementById("save-profile");
   if (!activeAccount) {
     big.textContent = "—";
-    sub.textContent = "connect the wallet you posted on X";
+    sub.textContent = "connect wallet to set up your profile";
+    handleInput.value = "";
+    handleInput.disabled = true;
+    saveBtn.disabled = true;
     claimBtn.textContent = "connect wallet";
     claimBtn.disabled = !walletReady;
     return;
   }
-  sub.textContent = activeAccount;
+  handleInput.disabled = false;
+  saveBtn.disabled = false;
+  if (!handleInput.value) handleInput.value = loadProfile(activeAccount);
+  const linked = handleInput.value.trim();
+  sub.textContent = linked
+    ? `${activeAccount} · ${linked}`
+    : `${activeAccount} · add your X handle above`;
   try {
     const e = await view("get_entitlement", { account_id: activeAccount });
     const amount = Number(e);
     big.textContent = amount > 0 ? fmtToken(e) + " wNEAR" : "0";
-    sub.textContent = amount > 0 ? activeAccount : activeAccount + " — nothing claimable yet";
     claimBtn.textContent = "claim";
     claimBtn.disabled = amount <= 0;
   } catch (err) {
@@ -101,6 +121,23 @@ async function refreshMyRewards() {
     claimBtn.textContent = "claim";
     claimBtn.disabled = true;
   }
+}
+
+function initProfile() {
+  const handleInput = document.getElementById("x-handle");
+  const saveBtn = document.getElementById("save-profile");
+  const save = () => {
+    if (!activeAccount) return;
+    let h = handleInput.value.trim();
+    if (h && !h.startsWith("@")) h = "@" + h;
+    handleInput.value = h;
+    saveProfile(activeAccount, h);
+    saveBtn.textContent = "saved";
+    setTimeout(() => { saveBtn.textContent = "save"; }, 1500);
+    refreshMyRewards();
+  };
+  saveBtn.addEventListener("click", save);
+  handleInput.addEventListener("keydown", (e) => { if (e.key === "Enter") save(); });
 }
 
 async function claim() {
@@ -195,6 +232,7 @@ async function main() {
   document.getElementById("contract-link").href =
     "https://testnet.nearblocks.io/address/" + CONTRACT_ID;
   document.getElementById("claim-btn").addEventListener("click", claim);
+  initProfile();
 
   const settled = await loadEpoch().catch(() => false);
   if (settled) await refreshTicker().catch(() => {});

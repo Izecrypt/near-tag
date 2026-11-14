@@ -59,6 +59,11 @@ h1 em { font-style: normal; background: linear-gradient(120deg, var(--acc), #7df
 .claim-row .label { font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--dim); }
 .claim-row .value { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--acc); }
 .claim-sub { font-family: var(--mono); font-size: 12px; color: var(--dim); margin-top: 4px; }
+.profile-row { display: flex; gap: 8px; align-items: center; margin-top: 16px; padding: 10px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; }
+.profile-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); white-space: nowrap; }
+.profile-input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text); font-family: var(--mono); font-size: 14px; padding: 6px 2px; }
+.profile-input:disabled { color: var(--dim); }
+.profile-input::placeholder { color: #3d454e; }
 .claim-result { margin-top: 12px; font-family: var(--mono); font-size: 12px; word-break: break-all; }
 .claim-result.ok { color: var(--acc); }
 .claim-result.err { color: var(--acc2); }

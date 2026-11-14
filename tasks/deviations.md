@@ -65,3 +65,13 @@ implementation clarifications and gates that remain open.
 - The other machine owns the six-invariant review. Claim failure restoration
   and wrong contract/network replay rejection have unit coverage; there is no
   FT mock integration test.
+
+## Owner product decision — profile-based X linking — 2026-11-14
+
+- Wallet to X linking moved from "wallet address in the tag post" to a
+  user profile on the TAG site (wallet + X handle), per owner call 2026-11-14.
+  Tag posts carry only cashtag + token account. The on-chain mechanic is
+  unchanged: the attestor payload still binds x_account to wallet at epoch
+  settle, first-write-wins. Open trust item for live mode: profile claims
+  need an ownership proof (X OAuth or a signed-post check) before the
+  attestor accepts a new handle; demo mode is unaffected (synthetic).

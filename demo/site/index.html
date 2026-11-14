@@ -39,7 +39,7 @@
   <section class="hero">
     <div class="hero-left">
       <h1>tag it.<br>hold it.<br><em>earn it.</em></h1>
-      <p class="one-liner">the memecoin that pays its holders for posting. your X post is your signup, no account needed.</p>
+      <p class="one-liner">the memecoin that pays its holders for posting. tag on X, link your wallet on your profile, claim your share.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#how">start earning</a>
         <a class="btn btn-ghost" href="#earn">claim rewards</a>
@@ -48,7 +48,7 @@
 
     <div class="swap-card" id="earn">
       <div class="swap-head">
-        <span>your rewards</span>
+        <span>your profile</span>
         <a id="contract-link" href="#" target="_blank" rel="noopener" class="contract-link">contract</a>
       </div>
       <div class="swap-body">
@@ -56,7 +56,12 @@
           <span class="label">claimable</span>
           <span class="value" id="my-entitlement">—</span>
         </div>
-        <div class="claim-sub" id="my-entitlement-sub">connect the wallet you posted on X</div>
+        <div class="claim-sub" id="my-entitlement-sub">connect wallet to set up your profile</div>
+        <div class="profile-row" id="profile-row">
+          <span class="profile-label">X handle</span>
+          <input id="x-handle" class="profile-input" placeholder="@yourhandle" maxlength="30" disabled>
+          <button id="save-profile" class="btn btn-ghost btn-sm" disabled>save</button>
+        </div>
         <button id="claim-btn" class="btn btn-primary btn-block" disabled>connect wallet</button>
         <div id="claim-result" class="claim-result"></div>
       </div>
@@ -77,18 +82,18 @@
     <div class="join-strip">
       <div class="join-step">
         <div class="join-n">step 1</div>
-        <div class="join-t">post on X<br><span>$TAG + the token account + your wallet address</span></div>
-        <div class="join-note">that post links your X to your wallet. no signup, no oauth, the chain reads it.</div>
+        <div class="join-t">make your profile<br><span>connect wallet, add your X handle here</span></div>
+        <div class="join-note">takes 30 seconds. your handle is linked to your wallet on-chain at the next epoch.</div>
       </div>
       <div class="join-step">
         <div class="join-n">step 2</div>
-        <div class="join-t">validators confirm<br><span>holder-validators vote on-chain</span></div>
-        <div class="join-note">confirmed tags score points by the fixed table. spam gets capped, quality wins.</div>
+        <div class="join-t">tag $TAG on X<br><span>cashtag + the token account in the post</span></div>
+        <div class="join-note">no wallet in the post, just the tag. engagement scores points, caps stop spam.</div>
       </div>
       <div class="join-step">
         <div class="join-n">step 3</div>
-        <div class="join-t">claim your share<br><span>connect that wallet, pull your rewards</span></div>
-        <div class="join-note">the pot settles once a day. 95% to you, 5% feeds the pool. holding earns too.</div>
+        <div class="join-t">claim your share<br><span>validators confirm, the pot settles daily</span></div>
+        <div class="join-note">max 10% of treasury per day. 95% to you, 5% feeds the pool. holding earns too.</div>
       </div>
     </div>
   </section>
