@@ -27,11 +27,11 @@ implementation clarifications and gates that remain open.
   were published through the GitHub connector to `worker/near-tag-build` and
   are available for review in draft PR #1. The default `master` branch was not
   changed.
-- GitHub Actions run [43585495104](https://github.com/Izecrypt/near-tag/actions/runs/43585495104)
+- GitHub Actions run [43586449270](https://github.com/Izecrypt/near-tag/actions/runs/43586449270)
   passed Python, Rust, and the `wasm32-unknown-unknown` release build on
-  commit `36cca4768aa889ddb52b9bfa94271d06cabfe9b1`. `cargo test` passed 15
-  Rust tests and the then-current Python suite passed 21 tests. The expanded
-  local Python suite has 22 tests; CI for that simulation update is pending.
+  commit `00aba6436ccc8e2c6b5a1a50cd97c4470f2635f0`. `cargo test` passed 15
+  Rust tests and the Python suite passed 22 tests (17 attestor, 5 simulation).
+  The run uploaded the WASM artifact; the current docs-only commit follows it.
 - No testnet keys were available or used. No contract deployment, funded
   account, transaction, live site, video, or hackathon submission is claimed.
 - The simulation is exploratory and does not satisfy the parameter

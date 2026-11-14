@@ -35,10 +35,10 @@ the chart.
 
 ## Status
 
-The implementation is on the worker draft branch. GitHub Actions run 43585495104
-passed 15 Rust tests, 21 Python tests, and a `wasm32-unknown-unknown` release
-build. The current local suite has 22 Python tests (17 attestor + 5 simulation);
-CI for the expanded simulation is pending.
+The implementation is on the worker draft branch. GitHub Actions run 43586449270
+passed 15 Rust tests, 22 Python tests (17 attestor + 5 simulation), and the
+`wasm32-unknown-unknown` release build. It also uploaded the contract WASM as a
+short-lived workflow artifact.
 The testnet demo, live site, video, and submission are not complete. See
 `tasks/todo.md` and `tasks/deviations.md` for proof and open gates. No deployed
 address or transaction hash is claimed.
