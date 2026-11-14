@@ -32,7 +32,11 @@ async function view(method, args) {
   });
   const data = await res.json();
   if (data.error) throw new Error(JSON.stringify(data.error));
-  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(data.result.result), c => c.charCodeAt(0))));
+  const raw = data.result.result;
+  const bytes = typeof raw === "string"
+    ? Uint8Array.from(atob(raw), c => c.charCodeAt(0))
+    : Uint8Array.from(raw);
+  return JSON.parse(new TextDecoder().decode(bytes));
 }
 
 const fmtWhole = (v) => Number(v).toLocaleString("en-US");
