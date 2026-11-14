@@ -3,6 +3,16 @@
 No product-scope deviations have been approved. The items below record
 implementation clarifications and gates that remain open.
 
+## Reviewer fix — NEP-141 receiver deposit — 2026-11-14
+
+- `ft_on_transfer` asserted zero attached deposit. Real NEP-141 token
+  contracts (verified on testnet against `wrap.testnet`, built from
+  near-contract-standards 3.1.0) attach exactly 1 yoctoNEAR to the receiver
+  call, so every `ft_transfer_call` treasury deposit trapped with
+  `unreachable`. The bound is now `<= 1 yocto`, with a regression test
+  covering both the protocol yocto and a rejecting >1 yocto deposit. Found
+  during reviewer testnet deployment, after worker handoff.
+
 ## Accounting clarification — 2026-11-14
 
 - Settlement reserves outstanding gross entitlements before calculating a

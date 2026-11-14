@@ -509,9 +509,14 @@ impl Contract {
     }
 
     /// TAG treasury deposits must use `ft_transfer_call`; unrelated tokens
-    /// are returned by the NEP-141 receiver interface.
+    /// are returned by the NEP-141 receiver interface. The NEP-141 reference
+    /// implementation attaches exactly 1 yoctoNEAR to this receiver call, so
+    /// the deposit bound is `<= 1 yocto`, not zero.
     pub fn ft_on_transfer(&mut self, _sender_id: AccountId, amount: U128, _msg: String) -> U128 {
-        assert_zero_attached_deposit();
+        assert!(
+            env::attached_deposit().as_yoctonear() <= 1,
+            "receiver does not accept deposits beyond the NEP-141 protocol yocto"
+        );
         if env::predecessor_account_id() != self.params.token_id {
             return amount;
         }
@@ -1045,6 +1050,38 @@ mod tests {
             "sender.testnet".parse().unwrap(), U128(50), String::new());
         assert_eq!(returned, U128(50));
         assert_eq!(contract.treasury(), U128(125));
+    }
+
+    #[test]
+    fn ft_receiver_accepts_the_nep141_protocol_yocto_deposit() {
+        let key = signing_key();
+        let mut contract = fresh_contract(&key);
+
+        // The NEP-141 reference attaches exactly 1 yoctoNEAR to the receiver
+        // call; a zero-only bound breaks real ft_transfer_call deposits.
+        let mut builder = VMContextBuilder::new();
+        builder
+            .current_account_id("mech.testnet".parse().unwrap())
+            .predecessor_account_id("tag.testnet".parse().unwrap())
+            .attached_deposit(NearToken::from_yoctonear(1));
+        testing_env!(builder.build());
+        let accepted = contract.ft_on_transfer(
+            "sender.testnet".parse().unwrap(), U128(200), String::new());
+        assert_eq!(accepted, U128(0));
+        assert_eq!(contract.treasury(), U128(200));
+
+        let mut builder = VMContextBuilder::new();
+        builder
+            .current_account_id("mech.testnet".parse().unwrap())
+            .predecessor_account_id("tag.testnet".parse().unwrap())
+            .attached_deposit(NearToken::from_yoctonear(2));
+        testing_env!(builder.build());
+        let rejected = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            contract.ft_on_transfer(
+                "sender.testnet".parse().unwrap(), U128(1), String::new())
+        }));
+        assert!(rejected.is_err());
+        assert_eq!(contract.treasury(), U128(200));
     }
 
     #[test]
