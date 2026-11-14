@@ -4,7 +4,8 @@ use near_sdk::borsh;
 use near_sdk::collections::{LookupMap, UnorderedSet, Vector};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::{
-    env, ext_contract, near, AccountId, Gas, NearToken, PanicOnDefault, Promise, PromiseResult,
+    env, ext_contract, near, AccountId, BorshStorageKey, Gas, NearToken, PanicOnDefault,
+    Promise, PromiseResult,
 };
 
 const BPS_DENOMINATOR: u128 = 10_000;
@@ -116,7 +117,7 @@ pub struct EpochSummary {
     pub treasury_after: U128,
 }
 
-#[near(serializers = [borsh])]
+#[derive(BorshStorageKey)]
 pub enum StorageKey {
     Entitlements,
     Epochs,
