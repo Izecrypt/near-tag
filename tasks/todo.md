@@ -17,8 +17,9 @@ Deadline 2026-11-14 23:59 UTC. Work top to bottom. [G#] = verification gate.
       pool.
 - [ ] 1.8 Views: get_params, get_entitlement, get_epoch, treasury, pots.
 - [ ] 1.9 Unit tests incl. ALL six invariants (Architecture.md §2).
-      `cargo test` passes 15 tests in GitHub Actions run 43585044305; the six
-      invariant coverage review remains open, so this item is not closed.
+      `cargo test` passes 15 tests and the WASM release target builds in GitHub
+      Actions run 43585495104; six-invariant review remains open, so this
+      item is not closed.
 
 ## Phase 2 — deploy + attestor demo (est. 2.5h)
 
