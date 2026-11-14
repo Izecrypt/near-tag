@@ -16,12 +16,29 @@
    freeze, or touch the token itself."
 4. **The loop (25s)**: daily pot max 10% of treasury; earn max what you
    held that day; validators confirm the tags; 5% of every claim goes back
-   to the pool; a NEAR pot buys TAG on Ref and refills the treasury —
-   anyone can trigger it.
+   to the pool; a reserve pot is earmarked for market buybacks (refill is
+   permissionless once a pool is verified — stated, not shown).
 5. **Live demo (15s)**: run a claim on testnet, show the 95/5 split in the
    explorer, show the epoch settle tx.
 6. **Close (5s)**: "The economy used to run on a server with admin keys.
-   Now the rules are the token." Repo link.
+   Now the rules are the token." Repo + site links:
+   github.com/Izecrypt/near-tag and ntag.trenchesnetwork.xyz.
+
+## Recording shot list (what's actually on screen)
+
+0:00–0:15 — https://ntag.trenchesnetwork.xyz hero: headline, mascot, live
+epoch chip ticking, the three trust chips.
+0:15–0:45 — scroll: 3 steps, two ways to earn, the scoring menu.
+0:45–1:15 — testnet.nearblocks.io/address/tagmech-izecube.testnet: show
+the contract is real — Code tab, the settled epoch via get_epoch (day
+20771), the settle tx F2Nm89EqZpoTZ6VLczaC1NtCweksvh17ModHy3HQUAoK,
+then a couple of the 8 claim txs showing the 95/5 amounts.
+1:15–1:40 — terminal: run the reserved validator claim:
+`export NEAR_TESTNET_RPC=https://rpc.testnet.fastnear.com && near call tagmech-izecube.testnet claim '{}' --accountId tagvalidator1.testnet --gas 100000000000000 --networkId testnet`
+then open the resulting tx hash on nearblocks — the 95% / 5% split shows
+in one transaction.
+1:40–2:00 — back on the site: the epoch board + live counters; close on
+the repo link.
 
 ## Submission checklist
 
