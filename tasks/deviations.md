@@ -15,9 +15,16 @@ implementation clarifications and gates that remain open.
   makes approval and rejection counts reflect actual validator transactions.
   Epoch signatures bind both the target contract and NEAR chain ID. The SDK
   pin is 5.30.1 for `env::chain_id()`.
-- `refill()` remains a no-op until the testnet router, TAG/wNEAR pool, token
-  storage requirements, and safe minimum-output policy are verified. This is
-  an open blocker, not evidence that a pool is unavailable.
+- `refill()` remains a no-op until a compatible TAG/wNEAR testnet pool, token
+  storage requirements, and a safe minimum-output policy are verified. Ref's
+  official docs list `ref-finance.testnet` as the exchange and describe swaps
+  as requiring a `pool_id`, input/output token IDs, and `min_amount_out`; they
+  do not establish that a pool for the demo token exists. The public
+  `rpc.testnet.near.org` probe from this workstation failed DNS resolution, so
+  live pool state could not be checked. This is an open blocker, not evidence
+  that a pool is unavailable.
+  Sources: [Ref Finance deployments](https://github.com/ref-finance/docs/blob/main/README.md),
+  [Ref Exchange swap interface](https://github.com/ref-finance/docs/blob/main/contracts/ref-exchange.md).
 
 ## Environment and verification — 2026-11-14
 
