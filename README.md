@@ -35,12 +35,11 @@ the chart.
 
 ## Status
 
-The specification and build plan are complete. Rust contract source, Python
-scoring, and a preliminary simulation are in progress; the contract has not
-been compiled or tested. The testnet demo, live site, video, and submission
-are not complete. See `tasks/todo.md` and `tasks/deviations.md` for current
-proof and workstation limits. No deployed address or transaction hash is
-claimed.
+The implementation is on the worker draft branch. GitHub Actions compiles
+the Rust contract and passes its 14 unit tests; the 20 Python tests also pass.
+The testnet demo, live site, video, and submission are not complete. See
+`tasks/todo.md` and `tasks/deviations.md` for proof and open gates. No deployed
+address or transaction hash is claimed.
 
 Demo target: NEAR testnet, submission before 2026-11-14 23:59 UTC.
 

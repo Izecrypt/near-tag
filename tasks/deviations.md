@@ -21,7 +21,7 @@ No product-scope deviations have been approved.
 ## Local build session — 2026-11-14
 
 - The available workstation has Python 3.8.2, but no `cargo`, `rustc`,
-  `near` CLI, or Docker executable. The contract cannot be compiled, tested,
+  `near` CLI, or Docker executable. The contract cannot be compiled locally,
   deployed, or exercised from this environment as-is.
 - GitHub DNS resolution failed during the attempted vault fetch. The GitHub
   connector confirms `near-tag` still has only its `master` branch; local
@@ -30,9 +30,9 @@ No product-scope deviations have been approved.
   account, transaction, live site, video, or hackathon submission is claimed.
 - Scoring and simulation utilities are local; the simulation remains
   exploratory and does not satisfy the parameter-recommendation gate.
-- Contract source has been added locally but cannot be compiled or tested on
-  this workstation because `cargo` and `rustc` are absent and package-host
-  DNS fails. The source is unverified and is not a completed contract gate.
+- GitHub Actions compiled the contract and passed 14 Rust unit tests on the
+  worker branch (run 43584626007). Local cargo is unavailable, and there is
+  still no wasm build or testnet deployment evidence.
 - `refill()` remains a no-op pending verification of the testnet router,
   TAG/wNEAR pool, token storage requirements, and safe minimum-output policy.
   No Ref pool absence has been proven, so this is an open implementation
