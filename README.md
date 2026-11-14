@@ -35,15 +35,19 @@ the chart.
 
 ## Status
 
-The implementation is on the worker draft branch. GitHub Actions run 43587463639
-passed 19 Rust tests, 22 Python tests (17 attestor + 5 simulation), and the
-`wasm32-unknown-unknown` release build. It also uploaded the contract WASM as a
-short-lived workflow artifact.
-The testnet demo, live site, video, and submission are not complete. See
-`tasks/todo.md` and `tasks/deviations.md` for proof and open gates. No deployed
-address or transaction hash is claimed.
+Deployed and demonstrated on NEAR testnet (2026-11-14). Mechanics contract:
+[`tagmech-izecube.testnet`](https://testnet.nearblocks.io/address/tagmech-izecube.testnet).
+Live site: https://tag.trenchesnetwork.xyz (reads the contract live).
 
-Demo target: NEAR testnet, submission before 2026-11-14 23:59 UTC.
+One synthetic, labeled demo epoch (day 20771) was settled with 8 demo users
+and 2 on-chain validators: pot exactly 10% of treasury, 48 validator votes,
+8 successful claims with the 95/5 user/skim split verified to the yocto, and
+the skim pot visible on-chain. Full tx list and post-claim balances:
+`tasks/HANDBACK.md`. 20 Rust contract tests and 22 Python attestor/simulation
+tests pass in CI (`worker-checks.yml`).
+
+Demo target: NEAR hackathon track `memecoins`, submission before
+2026-11-14 23:59 UTC.
 
 ## Fixed scoring rules
 

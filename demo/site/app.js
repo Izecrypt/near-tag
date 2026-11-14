@@ -1,7 +1,7 @@
 /* TAG on NEAR demo site — reads live state from the testnet contract. */
 const CONTRACT_ID = "tagmech-izecube.testnet";
 const RPC = "https://rpc.testnet.fastnear.com";
-const DEMO_DAY = null; // set to the demo epoch day after settlement; null = try today
+const DEMO_DAY = 20771; // demo epoch day settled on testnet
 
 const PARAM_LABELS = {
   token_id: "reward token (NEP-141)",
