@@ -730,6 +730,30 @@ mod tests {
     }
 
     #[test]
+    fn epoch_payload_cannot_be_replayed_to_another_contract_or_chain() {
+        let key = signing_key();
+        let mut contract = fresh_contract(&key);
+        let day = next_day(&contract);
+        let wrong_contract = EpochPayload {
+            day, demo: true,
+            contract_id: "other.testnet".parse().unwrap(), network_id: "test".into(),
+            accounts: vec![],
+        };
+        assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            contract.submit_epoch(sign(wrong_contract, &key));
+        })).is_err());
+        let wrong_chain = EpochPayload {
+            day, demo: true,
+            contract_id: "mech.testnet".parse().unwrap(), network_id: "mainnet".into(),
+            accounts: vec![],
+        };
+        assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            contract.submit_epoch(sign(wrong_chain, &key));
+        })).is_err());
+        assert_eq!(contract.current_day + 1, day);
+    }
+
+    #[test]
     fn settlement_respects_epoch_pot_and_combined_account_twap_cap() {
         let key = signing_key();
         let mut contract = fresh_contract(&key);
