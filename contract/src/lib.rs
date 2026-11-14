@@ -511,12 +511,16 @@ impl Contract {
     /// TAG treasury deposits must use `ft_transfer_call`; unrelated tokens
     /// are returned by the NEP-141 receiver interface. `payable` is required:
     /// NEP-141 reference tokens attach exactly 1 yoctoNEAR to this call.
+    /// Param names must match the NEP-141 wire keys exactly (`sender_id`,
+    /// `amount`, `msg`): underscore-prefixed names break JSON arg
+    /// deserialization on real token calls.
     #[payable]
-    pub fn ft_on_transfer(&mut self, _sender_id: AccountId, amount: U128, _msg: String) -> U128 {
+    pub fn ft_on_transfer(&mut self, sender_id: AccountId, amount: U128, msg: String) -> U128 {
         assert!(
             env::attached_deposit().as_yoctonear() <= 1,
             "receiver does not accept deposits beyond the NEP-141 protocol yocto"
         );
+        let _ = (sender_id, msg);
         if env::predecessor_account_id() != self.params.token_id {
             return amount;
         }

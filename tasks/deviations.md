@@ -5,18 +5,22 @@ implementation clarifications and gates that remain open.
 
 ## Reviewer fix — NEP-141 receiver deposit — 2026-11-14
 
-- `ft_on_transfer` asserted zero attached deposit and was not `payable`.
-  Real NEP-141 token contracts (verified on testnet against `wrap.testnet`,
-  built from near-contract-standards 3.1.0) attach exactly 1 yoctoNEAR to the
-  receiver call, so every `ft_transfer_call` treasury deposit was rejected by
-  the near-sdk non-payable wrapper before the function body ran. The method is
-  now `#[payable]` and bounds the deposit in-body (`<= 1 yocto`), with a
-  regression test covering both the protocol yocto and a rejecting >1 yocto
-  deposit. Found during reviewer testnet deployment, after worker handoff.
-- Note: on this deployment, contract panics render as a bare
+- `ft_on_transfer` asserted zero attached deposit, was not `payable`, AND
+  used underscore-prefixed parameter names (`_sender_id`, `amount`,
+  `_msg`). All three broke real token calls, found by testnet bisection
+  with a minimal probe contract: near-sdk wraps arguments in a struct
+  keyed by the exact parameter names, so the standard NEP-141 JSON keys
+  (`sender_id`, `amount`, `msg`) failed deserialization; the NEP-141
+  reference also attaches exactly 1 yoctoNEAR, which the non-payable
+  wrapper rejected. Fixed by renaming the parameters to the wire keys,
+  marking the method `#[payable]`, and bounding the deposit in-body
+  (`<= 1 yocto`), with a regression test covering both the protocol
+  yocto and a rejecting >1 yocto deposit.
+- Note: on testnet, contract panics render as a bare
   `WebAssembly trap: unreachable` without the panic message (panic-hook
-  formatting does not surface through the RPC error). Debugging-only
-  inconvenience; state and logic are unaffected.
+  formatting does not surface through the RPC error), which made the
+  root cause look like a wasm trap. Debugging-only inconvenience; state
+  and logic are unaffected.
 
 ## Accounting clarification — 2026-11-14
 
