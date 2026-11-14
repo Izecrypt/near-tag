@@ -28,7 +28,7 @@ const QUOTE_POINTS: u128 = 300;
 const ORIGINAL_MULTIPLIER: u128 = 25;
 
 #[near(serializers = [borsh, json])]
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Params {
     pub token_id: AccountId,
     pub daily_pot_bps: u16,
@@ -723,10 +723,85 @@ mod tests {
         };
         contract.submit_epoch(sign(epoch, &key));
         let after = contract.get_params();
-        assert_eq!(before.daily_pot_bps, after.daily_pot_bps);
-        assert_eq!(before.skim_bps, after.skim_bps);
-        assert_eq!(before.validator_cut_bps, after.validator_cut_bps);
-        assert_eq!(before.attestor_pk, after.attestor_pk);
+        assert_eq!(before, after);
+    }
+
+    #[test]
+    fn many_account_settlement_respects_pot_after_reserving_old_claims() {
+        let key = signing_key();
+        let mut contract = fresh_contract(&key);
+        contract.accounted_treasury = 10_000;
+        contract.outstanding_entitlements = 3_000;
+        contract.entitlements.insert(&"prior.testnet".parse().unwrap(), &3_000);
+        let day = next_day(&contract);
+        let accounts: Vec<AccountScore> = (0..20)
+            .map(|index| AccountScore {
+                account_id: format!("user{}.testnet", index).parse().unwrap(),
+                x_account: String::new(),
+                demo: true,
+                tag_points: U128(0),
+                hold_points: U128(1),
+                twap_balance: U128(1_000),
+                tags: vec![],
+            })
+            .collect();
+        let epoch = EpochPayload {
+            day,
+            demo: true,
+            contract_id: "mech.testnet".parse().unwrap(),
+            network_id: "test".into(),
+            accounts,
+        };
+
+        contract.submit_epoch(sign(epoch, &key));
+
+        let summary = contract.get_epoch(day).unwrap();
+        let new_entitlements = summary.total_entitlement.0;
+        assert_eq!(summary.pot.0, 700);
+        assert!(new_entitlements <= summary.pot.0);
+        assert_eq!(contract.outstanding_entitlements, 3_000 + new_entitlements);
+        assert!(contract.outstanding_entitlements <= contract.accounted_treasury);
+    }
+
+    #[test]
+    fn rejected_epoch_does_not_poison_fingerprint_or_partial_state() {
+        let key = signing_key();
+        let mut contract = fresh_contract(&key);
+        contract.accounted_treasury = 10_000;
+        contract.validators.insert(&"val1.testnet".parse().unwrap());
+        contract.validators.insert(&"val2.testnet".parse().unwrap());
+        let day = next_day(&contract);
+        record_votes(&mut contract, day, "fp-retry", &["val1.testnet", "val2.testnet"], true);
+        let tag = approved_tag("fp-retry", TagKind::Reply);
+        let make_epoch = |tag_points| EpochPayload {
+            day,
+            demo: true,
+            contract_id: "mech.testnet".parse().unwrap(),
+            network_id: "test".into(),
+            accounts: vec![AccountScore {
+                account_id: "alice.testnet".parse().unwrap(),
+                x_account: "@alice".to_string(),
+                demo: true,
+                tag_points: U128(tag_points),
+                hold_points: U128(0),
+                twap_balance: U128(1_000),
+                tags: vec![tag.clone()],
+            }],
+        };
+
+        let invalid = sign(make_epoch(0), &key);
+        assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            contract.submit_epoch(invalid);
+        })).is_err());
+        assert_eq!(contract.current_day + 1, day);
+        assert!(!contract.tag_registry.contains(&"fp-retry".to_string()));
+        assert!(contract.linked_x.get(&"alice.testnet".parse().unwrap()).is_none());
+        assert!(contract.validator_votes.get(&vote_key(day, "fp-retry")).is_some());
+
+        let correct_points = score_proof(&tag, 15_000);
+        contract.submit_epoch(sign(make_epoch(correct_points), &key));
+        assert!(contract.tag_registry.contains(&"fp-retry".to_string()));
+        assert_eq!(contract.linked_x.get(&"alice.testnet".parse().unwrap()), Some("@alice".to_string()));
     }
 
     #[test]
