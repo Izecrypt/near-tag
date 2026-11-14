@@ -71,13 +71,15 @@ h1 em { font-style: normal; background: linear-gradient(120deg, var(--acc), #7df
 .tick .v { font-family: var(--mono); font-size: 19px; font-weight: 700; color: var(--acc); }
 .tick .k { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin-top: 2px; }
 
-/* steps */
+/* join strip: post -> validate -> claim */
 #how { border-top: 1px solid var(--line); padding: 40px 0; }
-.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-.step { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
-.step-n { font-family: var(--mono); color: var(--acc); font-size: 13px; font-weight: 700; margin-bottom: 10px; }
-.step-t { font-size: 14px; font-weight: 600; line-height: 1.4; }
-.step-t span { color: var(--dim); font-weight: 400; font-size: 12px; }
+.join-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.join-step { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line); border-radius: 16px; padding: 22px; position: relative; }
+.join-n { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--acc); margin-bottom: 12px; }
+.join-t { font-size: 17px; font-weight: 700; line-height: 1.35; }
+.join-t span { color: var(--dim); font-weight: 400; font-size: 13px; }
+.join-note { margin-top: 12px; font-size: 13px; color: var(--dim); line-height: 1.55; }
+.join-step:not(:last-child)::after { content: "→"; position: absolute; right: -16px; top: 50%; transform: translateY(-50%); color: var(--acc); font-size: 18px; z-index: 2; }
 
 /* board */
 .board { border-top: 1px solid var(--line); padding: 40px 0; }
@@ -110,7 +112,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; gap: 28px; padding: 44px 0 30px; }
-  .steps { grid-template-columns: repeat(2, 1fr); }
+  .join-strip { grid-template-columns: 1fr; }
+  .join-step:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -18px; transform: translateX(50%); }
   .chips { grid-template-columns: repeat(3, 1fr); }
   .epoch-chip #chip-day { display: none; }
   .epoch-chip .sep { display: none; }

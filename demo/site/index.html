@@ -39,10 +39,10 @@
   <section class="hero">
     <div class="hero-left">
       <h1>tag it.<br>hold it.<br><em>earn it.</em></h1>
-      <p class="one-liner">the memecoin that pays its holders for posting.</p>
+      <p class="one-liner">the memecoin that pays its holders for posting. your X post is your signup, no account needed.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#earn">claim rewards</a>
-        <a class="btn btn-ghost" href="#how">how it works</a>
+        <a class="btn btn-primary" href="#how">start earning</a>
+        <a class="btn btn-ghost" href="#earn">claim rewards</a>
       </div>
     </div>
 
@@ -56,8 +56,8 @@
           <span class="label">claimable</span>
           <span class="value" id="my-entitlement">—</span>
         </div>
-        <div class="claim-sub" id="my-entitlement-sub">connect wallet to check</div>
-        <button id="claim-btn" class="btn btn-primary btn-block" disabled>claim</button>
+        <div class="claim-sub" id="my-entitlement-sub">connect the wallet you posted on X</div>
+        <button id="claim-btn" class="btn btn-primary btn-block" disabled>connect wallet</button>
         <div id="claim-result" class="claim-result"></div>
       </div>
       <div class="swap-foot">
@@ -74,11 +74,22 @@
   </section>
 
   <section id="how">
-    <div class="steps">
-      <div class="step"><div class="step-n">1</div><div class="step-t">post $TAG on X<br><span>your wallet in the text</span></div></div>
-      <div class="step"><div class="step-n">2</div><div class="step-t">validators confirm<br><span>on-chain votes</span></div></div>
-      <div class="step"><div class="step-n">3</div><div class="step-t">daily pot settles<br><span>max 10% of treasury</span></div></div>
-      <div class="step"><div class="step-n">4</div><div class="step-t">claim your share<br><span>holding earns too</span></div></div>
+    <div class="join-strip">
+      <div class="join-step">
+        <div class="join-n">step 1</div>
+        <div class="join-t">post on X<br><span>$TAG + the token account + your wallet address</span></div>
+        <div class="join-note">that post links your X to your wallet. no signup, no oauth, the chain reads it.</div>
+      </div>
+      <div class="join-step">
+        <div class="join-n">step 2</div>
+        <div class="join-t">validators confirm<br><span>holder-validators vote on-chain</span></div>
+        <div class="join-note">confirmed tags score points by the fixed table. spam gets capped, quality wins.</div>
+      </div>
+      <div class="join-step">
+        <div class="join-n">step 3</div>
+        <div class="join-t">claim your share<br><span>connect that wallet, pull your rewards</span></div>
+        <div class="join-note">the pot settles once a day. 95% to you, 5% feeds the pool. holding earns too.</div>
+      </div>
     </div>
   </section>
 

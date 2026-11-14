@@ -83,8 +83,9 @@ async function refreshMyRewards() {
   const claimBtn = document.getElementById("claim-btn");
   if (!activeAccount) {
     big.textContent = "—";
-    sub.textContent = "connect wallet to check";
-    claimBtn.disabled = true;
+    sub.textContent = "connect the wallet you posted on X";
+    claimBtn.textContent = "connect wallet";
+    claimBtn.disabled = !walletReady;
     return;
   }
   sub.textContent = activeAccount;
@@ -92,17 +93,21 @@ async function refreshMyRewards() {
     const e = await view("get_entitlement", { account_id: activeAccount });
     const amount = Number(e);
     big.textContent = amount > 0 ? fmtToken(e) + " wNEAR" : "0";
-    sub.textContent = amount > 0 ? activeAccount : activeAccount + " — nothing claimable";
+    sub.textContent = amount > 0 ? activeAccount : activeAccount + " — nothing claimable yet";
+    claimBtn.textContent = "claim";
     claimBtn.disabled = amount <= 0;
   } catch (err) {
     sub.textContent = "could not read entitlement";
+    claimBtn.textContent = "claim";
+    claimBtn.disabled = true;
   }
 }
 
 async function claim() {
   const result = document.getElementById("claim-result");
   const claimBtn = document.getElementById("claim-btn");
-  if (!activeAccount || !walletReady) return;
+  if (!walletReady) return;
+  if (!activeAccount) { modal.show(); return; }
   claimBtn.disabled = true;
   result.className = "claim-result";
   result.textContent = "sign in your wallet…";
