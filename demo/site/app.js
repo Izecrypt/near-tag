@@ -27,8 +27,30 @@ const fmtWhole = (v) => Number(v).toLocaleString("en-US");
 const fmtToken = (y) => (Number(y) / 1e24).toLocaleString("en-US", { maximumFractionDigits: 4 });
 function shortAccount(a) { return a.length > 16 ? a.slice(0, 8) + "…" + a.slice(-5) : a; }
 
-/* ---------- wallet ---------- */
-let selector, modal, activeAccount = null, walletReady = false;
+/* ---------- wallet + X session ---------- */
+let selector, modal, activeAccount = null, walletReady = false, xSession = null;
+
+async function fetchXSession() {
+  try {
+    const r = await fetch("/auth/me", { credentials: "same-origin" });
+    xSession = await r.json();
+  } catch (e) {
+    xSession = { authenticated: false };
+  }
+}
+
+async function linkWalletToX() {
+  if (!xSession || !xSession.authenticated || !activeAccount) return;
+  try {
+    await fetch("/auth/link", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ wallet: activeAccount }),
+    });
+    await fetchXSession();
+  } catch (e) {}
+}
 
 async function initWallet() {
   try {
@@ -46,7 +68,9 @@ async function initWallet() {
     walletReady = true;
     selector.store.observable.subscribe((state) => {
       const acc = (state.accounts || []).find(a => a.active);
+      const had = activeAccount;
       activeAccount = acc ? acc.accountId : null;
+      if (activeAccount && activeAccount !== had) linkWalletToX();
       renderWallet();
       refreshMyRewards();
     });
@@ -77,39 +101,47 @@ function renderWallet() {
   }
 }
 
-function profileKey(account) { return "tag_profile_" + account; }
-
-function loadProfile(account) {
-  try { return localStorage.getItem(profileKey(account)) || ""; } catch (e) { return ""; }
-}
-
-function saveProfile(account, handle) {
-  try { localStorage.setItem(profileKey(account), handle); } catch (e) {}
+function renderXState() {
+  const state = document.getElementById("x-state");
+  const xBtn = document.getElementById("connect-x-btn");
+  const authed = xSession && xSession.authenticated;
+  if (authed) {
+    state.textContent = "@" + xSession.x_handle;
+    state.classList.add("verified");
+    xBtn.textContent = "switch";
+    xBtn.classList.remove("btn-primary");
+    xBtn.classList.add("btn-ghost");
+  } else {
+    state.textContent = "not connected";
+    xBtn.textContent = "connect X";
+    xBtn.classList.add("btn-primary");
+    xBtn.classList.remove("btn-ghost");
+  }
 }
 
 async function refreshMyRewards() {
   const big = document.getElementById("my-entitlement");
   const sub = document.getElementById("my-entitlement-sub");
   const claimBtn = document.getElementById("claim-btn");
-  const handleInput = document.getElementById("x-handle");
-  const saveBtn = document.getElementById("save-profile");
-  if (!activeAccount) {
+  const xAuthed = xSession && xSession.authenticated;
+  if (!xAuthed) {
     big.textContent = "—";
-    sub.textContent = "connect wallet to set up your profile";
-    handleInput.value = "";
-    handleInput.disabled = true;
-    saveBtn.disabled = true;
-    claimBtn.textContent = "connect wallet";
-    claimBtn.disabled = !walletReady;
+    sub.textContent = "sign in with X to start";
+    claimBtn.textContent = "connect X first";
+    claimBtn.disabled = true;
+    renderXState();
     return;
   }
-  handleInput.disabled = false;
-  saveBtn.disabled = false;
-  if (!handleInput.value) handleInput.value = loadProfile(activeAccount);
-  const linked = handleInput.value.trim();
-  sub.textContent = linked
-    ? `${activeAccount} · ${linked}`
-    : `${activeAccount} · add your X handle above`;
+  if (!activeAccount) {
+    big.textContent = "—";
+    sub.textContent = "@" + xSession.x_handle + " — now connect your wallet";
+    claimBtn.textContent = "connect wallet";
+    claimBtn.disabled = !walletReady;
+    renderXState();
+    return;
+  }
+  sub.textContent = "@" + xSession.x_handle + " · " + activeAccount;
+  renderXState();
   try {
     const e = await view("get_entitlement", { account_id: activeAccount });
     const amount = Number(e);
@@ -144,6 +176,7 @@ async function claim() {
   const result = document.getElementById("claim-result");
   const claimBtn = document.getElementById("claim-btn");
   if (!walletReady) return;
+  if (!xSession || !xSession.authenticated) { window.location.href = "/auth/x/login"; return; }
   if (!activeAccount) { modal.show(); return; }
   claimBtn.disabled = true;
   result.className = "claim-result";
@@ -232,14 +265,24 @@ async function main() {
   document.getElementById("contract-link").href =
     "https://testnet.nearblocks.io/address/" + CONTRACT_ID;
   document.getElementById("claim-btn").addEventListener("click", claim);
-  initProfile();
 
   const settled = await loadEpoch().catch(() => false);
   if (settled) await refreshTicker().catch(() => {});
   loadBoard();
   tickCountdown();
   setInterval(tickCountdown, 1000);
+
+  const params = new URLSearchParams(location.search);
+  const authError = params.get("auth_error");
+  if (authError) {
+    const sub = document.getElementById("my-entitlement-sub");
+    sub.textContent = authError === "denied" ? "X sign-in cancelled" : "X sign-in failed (" + authError + ")";
+    history.replaceState(null, "", "/");
+  }
+
+  await fetchXSession();
   await initWallet();
+  refreshMyRewards();
 }
 
 main().catch(e => {

@@ -39,7 +39,7 @@
   <section class="hero">
     <div class="hero-left">
       <h1>tag it.<br>hold it.<br><em>earn it.</em></h1>
-      <p class="one-liner">the memecoin that pays its holders for posting. tag on X, link your wallet on your profile, claim your share.</p>
+      <p class="one-liner">the memecoin that pays its holders for posting. sign in with X, tag @its_izecube with $TAG, claim your share.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#how">start earning</a>
         <a class="btn btn-ghost" href="#earn">claim rewards</a>
@@ -52,17 +52,17 @@
         <a id="contract-link" href="#" target="_blank" rel="noopener" class="contract-link">contract</a>
       </div>
       <div class="swap-body">
+        <div class="x-row">
+          <span class="profile-label">X account</span>
+          <span class="x-state" id="x-state">not connected</span>
+          <a class="btn btn-primary btn-sm" id="connect-x-btn" href="/auth/x/login">connect X</a>
+        </div>
         <div class="claim-row">
           <span class="label">claimable</span>
           <span class="value" id="my-entitlement">—</span>
         </div>
-        <div class="claim-sub" id="my-entitlement-sub">connect wallet to set up your profile</div>
-        <div class="profile-row" id="profile-row">
-          <span class="profile-label">X handle</span>
-          <input id="x-handle" class="profile-input" placeholder="@yourhandle" maxlength="30" disabled>
-          <button id="save-profile" class="btn btn-ghost btn-sm" disabled>save</button>
-        </div>
-        <button id="claim-btn" class="btn btn-primary btn-block" disabled>connect wallet</button>
+        <div class="claim-sub" id="my-entitlement-sub">sign in with X to start</div>
+        <button id="claim-btn" class="btn btn-primary btn-block" disabled>connect X first</button>
         <div id="claim-result" class="claim-result"></div>
       </div>
       <div class="swap-foot">
@@ -82,17 +82,17 @@
     <div class="join-strip">
       <div class="join-step">
         <div class="join-n">step 1</div>
-        <div class="join-t">make your profile<br><span>connect wallet, add your X handle here</span></div>
-        <div class="join-note">takes 30 seconds. your handle is linked to your wallet on-chain at the next epoch.</div>
+        <div class="join-t">sign in with X<br><span>we verify the account is yours</span></div>
+        <div class="join-note">one click, oauth. your handle is bound to your profile, no typing handles by hand.</div>
       </div>
       <div class="join-step">
         <div class="join-n">step 2</div>
-        <div class="join-t">tag $TAG on X<br><span>cashtag + the token account in the post</span></div>
-        <div class="join-note">no wallet in the post, just the tag. engagement scores points, caps stop spam.</div>
+        <div class="join-t">tag @its_izecube with $TAG<br><span>post it on X</span></div>
+        <div class="join-note">engagement scores points by the fixed table. caps stop spam, quality wins.</div>
       </div>
       <div class="join-step">
         <div class="join-n">step 3</div>
-        <div class="join-t">claim your share<br><span>validators confirm, the pot settles daily</span></div>
+        <div class="join-t">connect wallet, claim<br><span>validators confirm, pot settles daily</span></div>
         <div class="join-note">max 10% of treasury per day. 95% to you, 5% feeds the pool. holding earns too.</div>
       </div>
     </div>
