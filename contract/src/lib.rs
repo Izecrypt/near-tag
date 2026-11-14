@@ -509,9 +509,9 @@ impl Contract {
     }
 
     /// TAG treasury deposits must use `ft_transfer_call`; unrelated tokens
-    /// are returned by the NEP-141 receiver interface. The NEP-141 reference
-    /// implementation attaches exactly 1 yoctoNEAR to this receiver call, so
-    /// the deposit bound is `<= 1 yocto`, not zero.
+    /// are returned by the NEP-141 receiver interface. `payable` is required:
+    /// NEP-141 reference tokens attach exactly 1 yoctoNEAR to this call.
+    #[payable]
     pub fn ft_on_transfer(&mut self, _sender_id: AccountId, amount: U128, _msg: String) -> U128 {
         assert!(
             env::attached_deposit().as_yoctonear() <= 1,

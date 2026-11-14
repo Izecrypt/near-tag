@@ -5,13 +5,18 @@ implementation clarifications and gates that remain open.
 
 ## Reviewer fix — NEP-141 receiver deposit — 2026-11-14
 
-- `ft_on_transfer` asserted zero attached deposit. Real NEP-141 token
-  contracts (verified on testnet against `wrap.testnet`, built from
-  near-contract-standards 3.1.0) attach exactly 1 yoctoNEAR to the receiver
-  call, so every `ft_transfer_call` treasury deposit trapped with
-  `unreachable`. The bound is now `<= 1 yocto`, with a regression test
-  covering both the protocol yocto and a rejecting >1 yocto deposit. Found
-  during reviewer testnet deployment, after worker handoff.
+- `ft_on_transfer` asserted zero attached deposit and was not `payable`.
+  Real NEP-141 token contracts (verified on testnet against `wrap.testnet`,
+  built from near-contract-standards 3.1.0) attach exactly 1 yoctoNEAR to the
+  receiver call, so every `ft_transfer_call` treasury deposit was rejected by
+  the near-sdk non-payable wrapper before the function body ran. The method is
+  now `#[payable]` and bounds the deposit in-body (`<= 1 yocto`), with a
+  regression test covering both the protocol yocto and a rejecting >1 yocto
+  deposit. Found during reviewer testnet deployment, after worker handoff.
+- Note: on this deployment, contract panics render as a bare
+  `WebAssembly trap: unreachable` without the panic message (panic-hook
+  formatting does not surface through the RPC error). Debugging-only
+  inconvenience; state and logic are unaffected.
 
 ## Accounting clarification — 2026-11-14
 
