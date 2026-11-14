@@ -35,8 +35,10 @@ the chart.
 
 ## Status
 
-The implementation is on the worker draft branch. GitHub Actions compiles
-the Rust contract and passes its 15 unit tests; the 21 Python tests also pass.
+The implementation is on the worker draft branch. GitHub Actions run 43585495104
+passed 15 Rust tests, 21 Python tests, and a `wasm32-unknown-unknown` release
+build. The current local suite has 22 Python tests (17 attestor + 5 simulation);
+CI for the expanded simulation is pending.
 The testnet demo, live site, video, and submission are not complete. See
 `tasks/todo.md` and `tasks/deviations.md` for proof and open gates. No deployed
 address or transaction hash is claimed.
@@ -62,33 +64,33 @@ link; validator votes are separate on-chain transactions.
 
 ## Simulation status
 
-`sim/simulate.py` is a preliminary deterministic stress model, not a forecast
-or parameter recommendation. It uses a normalized 1,000,000-token starting
-balance, random per-user scores and balances, and immediate per-epoch claim
-groups with scenario delays of 3, 1, and 0 days. It does not model real TWAP
-sampling, validator identities, X ingestion, Ref swaps, or adversarial
-attestor behavior. The contract implementation reserves outstanding gross
-entitlements before calculating each later daily pot; the simulation still
-needs to model that reserve rule. Run from `sim/` with
+`sim/simulate.py` is a deterministic sensitivity model, not a forecast or
+production-optimal parameter recommendation. It uses a normalized 1,000,000-token
+supply and the owner-approved 20% seed (200,000 tokens) for its baseline;
+random per-user tag scores and balances; 0/25/50/100 hold-points-per-token-day
+rates; and scenario claim delays of 3, 1, and 0 days. It applies the
+contract's outstanding-gross-entitlement reserve and 95/5 claim accounting.
+It assumes two validators approve every modeled accepted tag and split the
+validator cut evenly. It does not model real TWAP sampling, X ingestion, Ref
+swaps, or adversarial attestor behavior. Run from `sim/` with
 `python3 simulate.py`; output is written to `sim/out/`.
 
-The current fixed-seed baseline run produced these normalized outputs:
+The fixed-seed 20%-seed / 50-hold-points / 1,000-bps-pool baseline produced:
 
 | Scenario | Modeled claim delay | Treasury after 60 days, with skim | Without skim | Unpaid gross entitlement at day 60 |
 |---|---:|---:|---:|---:|
-| Quiet (20 taggers/day) | 3 days | 3,935 / 1,000,000 | 2,618 / 1,000,000 | 1,027 |
-| Expected (150 taggers/day) | 1 day | 3,619 / 1,000,000 | 2,744 / 1,000,000 | 289 |
-| Raid season (800 taggers/day) | 0 days | 6,201 / 1,000,000 | 5,416 / 1,000,000 | 0 |
+| Quiet (20 taggers/day) | 3 days | 876 / 200,000 | 616 / 200,000 | 203 |
+| Expected (150 taggers/day) | 1 day | 1,333 / 200,000 | 1,164 / 200,000 | 62 |
+| Raid season (800 taggers/day) | 0 days | 4,669 / 200,000 | 4,527 / 200,000 | 0 |
 
 These outputs are highly sensitive to the simplified random balance caps and
 claim-delay assumptions; they are not estimates of real treasury lifetime.
-The `sim/out/parameter_sweep.csv` compares 10%, 20%, and 30% normalized seed
-sizes with 500, 1,000, and 1,500 bps daily pots. In this fixed-seed model,
-lower daily pots preserve more treasury, while the 1,000 bps baseline leaves
-only 3,619 to 6,201 tokens after 60 days from a 1,000,000-token start. Keep
-the spec's 20% supply seed, 1,000 bps daily pot, and 500 bps claim skim for the
-demo, then revisit with real claim and holder data; this simplified model
-does not establish production-optimal settings. See `sim/out/treasury.svg`
+The `sim/out/parameter_sweep.csv` compares 0/25/50/100 hold points per token
+day, 10%/20%/30% of supply as seed, and 500/1,000/1,500 bps daily pots. It
+shows sensitivity to the inputs, not a robust optimum: scores, balances, and
+claim delays are simplified and randomly seeded. Keep the spec's 50 hold
+points, 20% supply seed, 1,000 bps daily pot, and 500 bps claim skim as the
+demo baseline; revisit with real holder and claim data. See `sim/out/treasury.svg`
 and `sim/out/results.csv`.
 
 ## Security and honesty limits
@@ -116,7 +118,7 @@ and `sim/out/results.csv`.
   `ft_transfer` donations cannot be observed by the mechanics contract.
 - **Outstanding claims:** the implementation subtracts all unclaimed gross
   entitlements from treasury before calculating a later epoch's pot. The
-  simulation still needs to model this reserve rule.
+  simulation applies the same gross-liability reserve before later settlements.
 - **Buyback:** the current `refill()` is a documented no-op until the testnet
   router, TAG/wNEAR pool, token storage, and minimum-output behavior are
   verified. No buyback is claimed as executed.

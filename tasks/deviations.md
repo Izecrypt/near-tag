@@ -30,8 +30,8 @@ implementation clarifications and gates that remain open.
 - GitHub Actions run [43585495104](https://github.com/Izecrypt/near-tag/actions/runs/43585495104)
   passed Python, Rust, and the `wasm32-unknown-unknown` release build on
   commit `36cca4768aa889ddb52b9bfa94271d06cabfe9b1`. `cargo test` passed 15
-  Rust tests; the Python suite has 21 tests. The change after that run only
-  corrects this status record.
+  Rust tests and the then-current Python suite passed 21 tests. The expanded
+  local Python suite has 22 tests; CI for that simulation update is pending.
 - No testnet keys were available or used. No contract deployment, funded
   account, transaction, live site, video, or hackathon submission is claimed.
 - The simulation is exploratory and does not satisfy the parameter

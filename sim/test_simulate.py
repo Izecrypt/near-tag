@@ -1,6 +1,6 @@
 import unittest
 
-from sim.simulate import DAYS, START_TREASURY, run
+from sim.simulate import (DAYS, START_TREASURY, allocate_daily_payouts, run)
 
 
 class SimulationTests(unittest.TestCase):
@@ -26,6 +26,15 @@ class SimulationTests(unittest.TestCase):
         smaller = run(150, 1, True, start_treasury=100_000)[0][-1]
         larger = run(150, 1, True, start_treasury=200_000)[0][-1]
         self.assertGreater(larger, smaller)
+
+    def test_hold_rate_changes_shares_and_validator_cut_needs_confirmed_tags(self):
+        args = (10_000, [100], [1_000], [5_000, 5_000])
+        no_holding = allocate_daily_payouts(*args, confirmed_tags=1, hold_rate=0)
+        with_holding = allocate_daily_payouts(*args, confirmed_tags=1, hold_rate=100)
+        no_confirmations = allocate_daily_payouts(*args, confirmed_tags=0, hold_rate=0)
+        self.assertNotEqual(no_holding, with_holding)
+        self.assertLess(sum(no_confirmations), sum(no_holding))
+        self.assertLessEqual(sum(with_holding), 10_000)
 
 
 if __name__ == "__main__":

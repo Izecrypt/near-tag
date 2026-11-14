@@ -33,3 +33,9 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
       - run: cargo build --manifest-path contract/Cargo.toml --target wasm32-unknown-unknown --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tag-mechanics-wasm-${{ github.sha }}
+          path: contract/target/wasm32-unknown-unknown/release/tag_mechanics.wasm
+          if-no-files-found: error
+          retention-days: 3

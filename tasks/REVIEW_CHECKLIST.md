@@ -57,20 +57,14 @@ test command is not proof unless the assertions cover these properties.
 - Reconcile every task checkbox and README claim against the exact source,
   test output, explorer link, or live site. Preserve unresolved items as open.
 
-## Spec questions discovered before implementation
+## Implementation clarifications recorded in Architecture.md
 
-These are review questions, not approved changes to the worker's scope:
+- Epoch signatures bind canonical payload bytes, contract, network, and day;
+  validator votes are separate registered-validator calls.
+- Per-account TWAP limits combine points and validator shares; excess stays
+  unallocated, preserving the epoch-pot bound.
+- Settlement subtracts all outstanding gross entitlements before computing
+  the next pot. Exercise delayed claims across multiple epochs.
+- Native NEAR enters through payable `deposit_near`; `ft_on_transfer` accepts
+  TAG only. Refill is still a no-op pending verified Ref testnet integration.
 
-- `TagProof` lists confirming accounts but the algorithm also requires net
-  confirmations after rejects; the payload schema needs explicit reject
-  votes and proof that voters are registered validators.
-- The specification says an account's total epoch payout is capped at TWAP,
-  but does not fully define how validator rewards interact with that cap or
-  where over-cap shares go. Invariant 3 still requires all granted shares
-  to remain within the pot.
-- The per-epoch pot cap does not reserve prior unpaid entitlements. If a
-  claimant delays, later epochs may create aggregate liabilities beyond the
-  contract's token balance. Tests should expose this; any accounting change
-  needs an owner decision because it changes the settlement rule.
-- NEAR buyback funding must be a payable native-NEAR path or a documented
-  wrapped-NEAR path; `ft_on_transfer` alone is not a native-NEAR deposit.

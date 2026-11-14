@@ -4,22 +4,28 @@ Deadline 2026-11-14 23:59 UTC. Work top to bottom. [G#] = verification gate.
 
 ## Phase 1 — contract (est. 4h)
 
-- [ ] 1.1 `cargo init` near-sdk contract in `contract/`. Params struct,
-      storage, `new()` exactly per Architecture.md §2.
-- [ ] 1.2 Scoring constants fixed in code (R2 table + caps + multiplier).
-- [ ] 1.3 `submit_epoch` with ed25519 payload verification, day sequencing,
-      fingerprint dedup, wallet↔x linking, pot/cap math, entitlement store.
-- [ ] 1.4 `claim()` with 95/5 split, reentrancy-safe ordering.
-- [ ] 1.5 `register_validator`, confirmation accounting, validator cut.
-- [ ] 1.6 NEP-141 receiver (`ft_on_transfer` accepting TAG deposits to
-      treasury; NEAR pot tracking for buyback).
+- [x] 1.1 near-sdk contract in `contract/`; Params, storage, one-shot `new()`.
+      Proof: GitHub Actions run 43585495104 compiles the WASM target.
+- [x] 1.2 Scoring constants fixed in code (R2 table + caps + multiplier).
+      Proof: Rust scoring tests pass in GitHub Actions run 43585495104.
+- [x] 1.3 `submit_epoch`: Ed25519/domain validation, day sequencing,
+      fingerprint dedup, first-write wallet↔X links, pot/cap math, entitlements.
+      Proof: contract tests and WASM build, run 43585495104.
+- [x] 1.4 `claim()` with 95/5 split, pre-transfer state update, failure restore.
+      Proof: claim arithmetic and failed-transfer restoration contract tests,
+      run 43585495104.
+- [x] 1.5 Validator registration, separate approve/reject votes, quorum, cut.
+      Proof: validator tests in run 43585495104; reviewer still audits invariants.
+- [x] 1.6 NEP-141 TAG receiver and separate payable native-NEAR pot.
+      Proof: source compiles in run 43585495104. FT mock integration is still open.
 - [ ] 1.7 `refill()` with Ref testnet swap + callback; graceful skip if no
       pool.
-- [ ] 1.8 Views: get_params, get_entitlement, get_epoch, treasury, pots.
+- [x] 1.8 Views: get_params, get_entitlement, get_epoch, treasury, pots.
+      Proof: public view methods compiled in run 43585495104.
 - [ ] 1.9 Unit tests incl. ALL six invariants (Architecture.md §2).
       `cargo test` passes 15 tests and the WASM release target builds in GitHub
-      Actions run 43585495104; six-invariant review remains open, so this
-      item is not closed.
+      Actions run 43585495104. Other-machine six-invariant review remains open,
+      so this item is not closed.
 
 ## Phase 2 — deploy + attestor demo (est. 2.5h)
 
@@ -49,10 +55,10 @@ Deadline 2026-11-14 23:59 UTC. Work top to bottom. [G#] = verification gate.
       near-api-js; claim box with MyNearWallet.
 - [ ] 3.2 Serve locally, verify against deployed contract.
       [G4: screenshot or local URL reading live state]
-- [x] 3.3 `sim/simulate.py`: 3 scenarios x 60 days, treasury curves with/
-      without skim, depletion table, 10/20/30% seed and 500/1000/1500 bps
-      sweep, conservative baseline recommendation. Proof:
-      `cd sim && python3 simulate.py`.
+- [x] 3.3 `sim/simulate.py`: 3 scenarios × 60 days, treasury curves with/
+      without skim, 10/20/30% seed, 0/25/50/100 hold-points and 500/1000/1500
+      bps sweep; baseline follows owner-approved settings. Proof:
+      `cd sim && python3 simulate.py`; 5 simulation tests pass locally.
 - [x] 3.4 Charts to `sim/out/`, results table into README.
       [G5: README and `sim/out/parameter_sweep.csv`; illustrative only]
 

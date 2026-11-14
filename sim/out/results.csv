@@ -1,7 +1,7 @@
 scenario,skim,claim_delay_days,seed_tokens,day_60_tokens,depletion_day,unpaid_gross_entitlement,failed_claim_attempts
-quiet,with skim,3,1000000,3935,>60,1027,0
-quiet,without skim,3,1000000,2618,>60,n/a,n/a
-expected,with skim,1,1000000,3619,>60,289,0
-expected,without skim,1,1000000,2744,>60,n/a,n/a
-raid-season,with skim,0,1000000,6201,>60,0,0
-raid-season,without skim,0,1000000,5416,>60,n/a,n/a
+quiet,with skim,3,200000,876,>60,203,0
+quiet,without skim,3,200000,616,>60,n/a,n/a
+expected,with skim,1,200000,1333,>60,62,0
+expected,without skim,1,200000,1164,>60,n/a,n/a
+raid-season,with skim,0,200000,4669,>60,0,0
+raid-season,without skim,0,200000,4527,>60,n/a,n/a
