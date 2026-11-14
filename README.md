@@ -119,9 +119,11 @@ and `sim/out/results.csv`.
 - **Outstanding claims:** the implementation subtracts all unclaimed gross
   entitlements from treasury before calculating a later epoch's pot. The
   simulation applies the same gross-liability reserve before later settlements.
-- **Buyback:** the current `refill()` is a documented no-op until the testnet
-  router, TAG/wNEAR pool, token storage, and minimum-output behavior are
-  verified. No buyback is claimed as executed.
+- **Buyback:** Ref's documentation lists `ref-finance.testnet` and a swap
+  method that requires a pool ID and minimum output. The current `refill()`
+  remains a no-op because a compatible TAG/wNEAR pool, token storage, and a
+  safe minimum-output policy have not been verified. No buyback is claimed as
+  implemented or executed.
 
 ## Docs
 
