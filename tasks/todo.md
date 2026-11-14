@@ -5,26 +5,26 @@ Deadline 2026-11-14 23:59 UTC. Work top to bottom. [G#] = verification gate.
 ## Phase 1 — contract (est. 4h)
 
 - [x] 1.1 near-sdk contract in `contract/`; Params, storage, one-shot `new()`.
-      Proof: GitHub Actions run 43586763317 compiles the WASM target.
+      Proof: GitHub Actions run 43587463639 compiles the WASM target.
 - [x] 1.2 Scoring constants fixed in code (R2 table + caps + multiplier).
-      Proof: Rust scoring tests pass in GitHub Actions run 43586763317.
+      Proof: Rust scoring tests pass in GitHub Actions run 43587463639.
 - [x] 1.3 `submit_epoch`: Ed25519/domain validation, day sequencing,
       fingerprint dedup, first-write wallet↔X links, pot/cap math, entitlements.
-      Proof: contract tests and WASM build, run 43586763317.
+      Proof: contract tests and WASM build, run 43587463639.
 - [x] 1.4 `claim()` with 95/5 split, pre-transfer state update, failure restore.
       Proof: claim arithmetic and failed-transfer restoration contract tests,
-      run 43586763317.
+      run 43587463639.
 - [x] 1.5 Validator registration, separate approve/reject votes, quorum, cut.
-      Proof: validator tests in run 43586763317; reviewer still audits invariants.
+      Proof: validator tests in run 43587463639; reviewer still audits invariants.
 - [x] 1.6 NEP-141 TAG receiver and separate payable native-NEAR pot.
-      Proof: receiver and native-NEAR unit tests pass in run 43586763317. Cross-contract FT mock integration remains open.
+      Proof: receiver and native-NEAR unit tests pass in run 43587463639. Cross-contract FT mock integration remains open.
 - [ ] 1.7 `refill()` with Ref testnet swap + callback; graceful skip if no
       pool.
 - [x] 1.8 Views: get_params, get_entitlement, get_epoch, treasury, pots.
-      Proof: public view methods compiled in run 43586763317.
+      Proof: public view methods compiled in run 43587463639.
 - [ ] 1.9 Unit tests incl. ALL six invariants (Architecture.md §2).
-      `cargo test` passes 17 tests and the WASM release target builds in GitHub
-      Actions run 43586763317. Other-machine six-invariant review remains open,
+      `cargo test` passes 19 tests and the WASM release target builds in GitHub
+      Actions run 43587463639. Other-machine six-invariant review remains open,
       so this item is not closed.
 
 ## Phase 2 — deploy + attestor demo (est. 2.5h)
