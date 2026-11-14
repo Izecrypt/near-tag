@@ -117,6 +117,7 @@ pub struct EpochSummary {
     pub treasury_after: U128,
 }
 
+#[near(serializers = [borsh])]
 #[derive(BorshStorageKey)]
 pub enum StorageKey {
     Entitlements,
