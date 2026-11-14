@@ -582,7 +582,7 @@ fn score_proof(proof: &TagProof, reply_to_token_bps: u16) -> u128 {
 mod tests {
     use super::*;
     use ed25519_dalek::{Signer, SigningKey};
-    use near_sdk::test_utils::VMContextBuilder;
+    use near_sdk::test_utils::{testing_env_with_promise_results, VMContextBuilder};
     use near_sdk::testing_env;
 
     fn params(key: &SigningKey) -> Params {
@@ -906,6 +906,28 @@ mod tests {
         assert_eq!(contract.skim_pot, 5);
         let second_claim = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| contract.claim()));
         assert!(second_claim.is_err());
+    }
+
+    #[test]
+    fn failed_claim_transfer_restores_entitlement_and_treasury_counters() {
+        let key = signing_key();
+        context("alice.testnet");
+        let mut contract = Contract::new(params(&key));
+        contract.accounted_treasury = 1_000;
+        contract.outstanding_entitlements = 100;
+        contract.entitlements.insert(&"alice.testnet".parse().unwrap(), &100);
+        let _promise = contract.claim();
+        let mut builder = VMContextBuilder::new();
+        builder
+            .current_account_id("mech.testnet".parse().unwrap())
+            .predecessor_account_id("mech.testnet".parse().unwrap());
+        testing_env_with_promise_results(builder.build(), PromiseResult::Failed);
+        contract.resolve_claim("alice.testnet".parse().unwrap(), U128(100), U128(95));
+
+        assert_eq!(contract.get_entitlement("alice.testnet".parse().unwrap()).0, 100);
+        assert_eq!(contract.outstanding_entitlements, 100);
+        assert_eq!(contract.accounted_treasury, 1_000);
+        assert_eq!(contract.skim_pot, 0);
     }
 
     #[test]
