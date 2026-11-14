@@ -22,6 +22,11 @@ class SimulationTests(unittest.TestCase):
         baseline = run(150, 1, True, pot_bps=1000)[0][-1]
         self.assertGreater(conservative, baseline)
 
+    def test_larger_starting_seed_retains_more_tokens_for_same_scenario(self):
+        smaller = run(150, 1, True, start_treasury=100_000)[0][-1]
+        larger = run(150, 1, True, start_treasury=200_000)[0][-1]
+        self.assertGreater(larger, smaller)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -48,8 +48,9 @@ Deadline 2026-11-14 23:59 UTC. Work top to bottom. [G#] = verification gate.
 - [ ] 3.2 Serve locally, verify against deployed contract.
       [G4: screenshot or local URL reading live state]
 - [x] 3.3 `sim/simulate.py`: 3 scenarios x 60 days, treasury curves with/
-      without skim, depletion table, 500/1000/1500 bps sweep, conservative
-      baseline recommendation. Proof: `cd sim && python3 simulate.py`.
+      without skim, depletion table, 10/20/30% seed and 500/1000/1500 bps
+      sweep, conservative baseline recommendation. Proof:
+      `cd sim && python3 simulate.py`.
 - [x] 3.4 Charts to `sim/out/`, results table into README.
       [G5: README and `sim/out/parameter_sweep.csv`; illustrative only]
 

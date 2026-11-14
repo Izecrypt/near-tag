@@ -43,6 +43,23 @@ address or transaction hash is claimed.
 
 Demo target: NEAR testnet, submission before 2026-11-14 23:59 UTC.
 
+## Fixed scoring rules
+
+| Activity | Points |
+|---|---:|
+| View | 1 |
+| Like | 50 |
+| Reply | 100 |
+| Retweet | 200 |
+| Quote | 300 |
+| Original post multiplier | ×25 |
+| Quote/reply to the token account | ×1.5 |
+| Hold | 0.5 per whole token per day, time-weighted |
+
+Daily tag caps are 5 originals, 10 quotes, and 15 replies. A post is eligible
+only when the attestor identifies the cashtag, token X account, and wallet
+link; validator votes are separate on-chain transactions.
+
 ## Simulation status
 
 `sim/simulate.py` is a preliminary deterministic stress model, not a forecast
@@ -65,13 +82,14 @@ The current fixed-seed baseline run produced these normalized outputs:
 
 These outputs are highly sensitive to the simplified random balance caps and
 claim-delay assumptions; they are not estimates of real treasury lifetime.
-The 500/1,000/1,500 bps sweep is in `sim/out/parameter_sweep.csv`. In this
-fixed-seed model, lower daily pots preserve more treasury, while the 1,000 bps
-baseline already leaves only 3,619 to 6,201 tokens after 60 days. Keep the
-spec's 1,000 bps daily pot and 500 bps claim skim for the demo, then revisit
-with real claim and holder data; this simplified model does not establish a
-production-optimal parameter. It assumes the modeled claim delay and does not
-represent real behavior. See `sim/out/treasury.svg` and `sim/out/results.csv`.
+The `sim/out/parameter_sweep.csv` compares 10%, 20%, and 30% normalized seed
+sizes with 500, 1,000, and 1,500 bps daily pots. In this fixed-seed model,
+lower daily pots preserve more treasury, while the 1,000 bps baseline leaves
+only 3,619 to 6,201 tokens after 60 days from a 1,000,000-token start. Keep
+the spec's 20% supply seed, 1,000 bps daily pot, and 500 bps claim skim for the
+demo, then revisit with real claim and holder data; this simplified model
+does not establish production-optimal settings. See `sim/out/treasury.svg`
+and `sim/out/results.csv`.
 
 ## Security and honesty limits
 

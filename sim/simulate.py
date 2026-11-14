@@ -8,13 +8,15 @@ SEED = 20261114
 START_TREASURY = 1_000_000
 POT_BPS = 1000
 POT_SWEEP_BPS = (500, 1000, 1500)
+SEED_SWEEP = (100_000, 200_000, 300_000)
 SKIM_BPS = 500
 SCENARIOS = {"quiet": (20, 3), "expected": (150, 1), "raid-season": (800, 0)}
 
 
-def run(taggers, claim_delay, skim_enabled, pot_bps=POT_BPS):
+def run(taggers, claim_delay, skim_enabled, pot_bps=POT_BPS,
+        start_treasury=START_TREASURY):
     rng = random.Random(SEED + taggers)
-    treasury = START_TREASURY
+    treasury = start_treasury
     history = [treasury]
     pending = []
     failed_claims = 0
@@ -72,13 +74,18 @@ def main():
         writer.writerows(rows)
     sweep_rows = []
     for name, (taggers, delay) in SCENARIOS.items():
-        for pot_bps in POT_SWEEP_BPS:
-            values, unpaid, failed = run(taggers, delay, True, pot_bps)
-            sweep_rows.append((name, pot_bps, delay, values[-1], unpaid, failed))
+        for seed_tokens in SEED_SWEEP:
+            for pot_bps in POT_SWEEP_BPS:
+                values, unpaid, failed = run(taggers, delay, True, pot_bps,
+                                             seed_tokens)
+                sweep_rows.append((name, seed_tokens, pot_bps, delay,
+                                   values[-1], values[-1] * 10000 // seed_tokens,
+                                   unpaid, failed))
     with open("out/parameter_sweep.csv", "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(("scenario", "daily_pot_bps", "claim_delay_days",
-                         "day_60_tokens", "unpaid_gross_entitlement",
+        writer.writerow(("scenario", "seed_tokens", "daily_pot_bps",
+                         "claim_delay_days", "day_60_tokens",
+                         "day_60_treasury_bps_of_seed", "unpaid_gross_entitlement",
                          "failed_claim_attempts"))
         writer.writerows(sweep_rows)
     # Portable SVG; no plotting dependency and easy to inspect in a browser.
@@ -105,8 +112,8 @@ def main():
     print("scenario,skim,claim_delay_days,seed_tokens,day_60_tokens,depletion_day,unpaid_gross_entitlement,failed_claim_attempts")
     for row in rows:
         print(",".join(map(str, row)))
-    print("Parameter sweep: out/parameter_sweep.csv (500, 1,000, 1,500 bps)")
-    print("Recommendation: retain 1,000 bps pending real claim and holder data; this normalized model cannot identify a production-optimal rate.")
+    print("Parameter sweep: out/parameter_sweep.csv (10%, 20%, 30% seed; 500, 1,000, 1,500 pot bps)")
+    print("Recommendation: retain 20% seed and 1,000 bps pending real claim and holder data; this normalized model cannot identify production-optimal settings.")
 
 
 if __name__ == "__main__":
