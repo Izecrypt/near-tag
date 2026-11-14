@@ -24,13 +24,6 @@
   <div class="wrap">
     <div class="brand"><span class="tag-badge">$TAG</span></div>
     <div class="epoch-chip"><span class="dot"></span><span id="chip-day">epoch —</span><span class="sep">·</span><span id="chip-countdown">--:--:--</span></div>
-    <div class="wallet-area">
-      <button id="connect-btn" class="btn btn-primary btn-sm">connect</button>
-      <div id="wallet-chip" class="wallet-chip hidden">
-        <span id="wallet-account"></span>
-        <button id="disconnect-btn" class="x-btn" title="disconnect">x</button>
-      </div>
-    </div>
   </div>
 </header>
 
@@ -56,6 +49,16 @@
           <span class="profile-label">X account</span>
           <span class="x-state" id="x-state">not connected</span>
           <a class="btn btn-primary btn-sm" id="connect-x-btn" href="/auth/x/login">connect X</a>
+        </div>
+        <div class="x-row">
+          <span class="profile-label">NEAR wallet</span>
+          <input id="wallet-input" class="profile-input" placeholder="you.testnet" spellcheck="false" autocomplete="off">
+          <button class="btn btn-ghost btn-sm" id="save-wallet">save</button>
+        </div>
+        <div class="signed-row hidden" id="signed-row">
+          <span class="signed-dot"></span>
+          <span id="signed-name"></span>
+          <button class="x-btn" id="signout-btn" title="sign out of wallet">sign out</button>
         </div>
         <div class="claim-row">
           <span class="label">claimable</span>
@@ -92,7 +95,7 @@
       </div>
       <div class="join-step">
         <div class="join-n">step 3</div>
-        <div class="join-t">connect wallet, claim<br><span>validators confirm, pot settles daily</span></div>
+        <div class="join-t">add your wallet, claim<br><span>validators confirm, pot settles daily</span></div>
         <div class="join-note">max 10% of treasury per day. 95% to you, 5% feeds the pool. holding earns too.</div>
       </div>
     </div>

@@ -27,8 +27,9 @@ const fmtWhole = (v) => Number(v).toLocaleString("en-US");
 const fmtToken = (y) => (Number(y) / 1e24).toLocaleString("en-US", { maximumFractionDigits: 4 });
 function shortAccount(a) { return a.length > 16 ? a.slice(0, 8) + "…" + a.slice(-5) : a; }
 
-/* ---------- wallet + X session ---------- */
+/* ---------- X session + manual wallet address ---------- */
 let selector, modal, activeAccount = null, walletReady = false, xSession = null;
+let manualWallet = (localStorage.getItem("tag_wallet") || "").trim().toLowerCase();
 
 async function fetchXSession() {
   try {
@@ -40,16 +41,47 @@ async function fetchXSession() {
 }
 
 async function linkWalletToX() {
-  if (!xSession || !xSession.authenticated || !activeAccount) return;
+  if (!xSession || !xSession.authenticated || !manualWallet) return;
   try {
     await fetch("/auth/link", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wallet: activeAccount }),
+      body: JSON.stringify({ wallet: manualWallet }),
     });
     await fetchXSession();
   } catch (e) {}
+}
+
+function initWalletField() {
+  const input = document.getElementById("wallet-input");
+  const saveBtn = document.getElementById("save-wallet");
+  input.value = manualWallet;
+  const save = async () => {
+    const w = input.value.trim().toLowerCase();
+    if (w && !w.endsWith(".testnet") && !w.endsWith(".near")) {
+      document.getElementById("my-entitlement-sub").textContent =
+        "that doesn't look like a NEAR address (name.testnet or name.near)";
+      return;
+    }
+    manualWallet = w;
+    localStorage.setItem("tag_wallet", w);
+    saveBtn.textContent = "saved";
+    setTimeout(() => { saveBtn.textContent = "save"; }, 1500);
+    if (w) await linkWalletToX();
+    refreshMyRewards();
+  };
+  saveBtn.addEventListener("click", save);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") save(); });
+}
+
+function renderSigned() {
+  const row = document.getElementById("signed-row");
+  if (!activeAccount) { row.classList.add("hidden"); return; }
+  row.classList.remove("hidden");
+  const mismatch = activeAccount !== manualWallet;
+  document.getElementById("signed-name").textContent =
+    "wallet signed in: " + shortAccount(activeAccount) + (mismatch ? " — doesn't match the address above" : "");
 }
 
 async function initWallet() {
@@ -70,35 +102,32 @@ async function initWallet() {
       const acc = (state.accounts || []).find(a => a.active);
       const had = activeAccount;
       activeAccount = acc ? acc.accountId : null;
-      if (activeAccount && activeAccount !== had) linkWalletToX();
-      renderWallet();
+      if (activeAccount && activeAccount !== had) {
+        if (activeAccount === manualWallet) linkWalletToX();
+        if (localStorage.getItem("tag_pending_claim") === "1") {
+          localStorage.removeItem("tag_pending_claim");
+          if (activeAccount === manualWallet) { claim(); }
+          else {
+            const result = document.getElementById("claim-result");
+            result.className = "claim-result err";
+            result.textContent = "signed-in wallet (" + shortAccount(activeAccount) +
+              ") doesn't match the address you entered — update it or sign out";
+          }
+        }
+      }
+      renderSigned();
       refreshMyRewards();
     });
   } catch (e) {
-    const btn = document.getElementById("connect-btn");
-    btn.textContent = "rpc";
-    btn.disabled = true;
+    walletReady = false;
+    const sub = document.getElementById("my-entitlement-sub");
+    if (sub) sub.textContent = "wallet connector failed to load — refresh to try again";
     return;
   }
-  document.getElementById("connect-btn").addEventListener("click", () => modal.show());
-  document.getElementById("disconnect-btn").addEventListener("click", async () => {
-    const wallet = await selector.wallet();
-    await wallet.signOut();
+  document.getElementById("signout-btn").addEventListener("click", async () => {
+    try { const w = await selector.wallet(); await w.signOut(); } catch (e) {}
   });
-  renderWallet();
-}
-
-function renderWallet() {
-  const btn = document.getElementById("connect-btn");
-  const chip = document.getElementById("wallet-chip");
-  if (activeAccount) {
-    btn.classList.add("hidden");
-    chip.classList.remove("hidden");
-    document.getElementById("wallet-account").textContent = shortAccount(activeAccount);
-  } else {
-    btn.classList.remove("hidden");
-    chip.classList.add("hidden");
-  }
+  renderSigned();
 }
 
 function renderXState() {
@@ -124,30 +153,29 @@ async function refreshMyRewards() {
   const sub = document.getElementById("my-entitlement-sub");
   const claimBtn = document.getElementById("claim-btn");
   const xAuthed = xSession && xSession.authenticated;
+  renderXState();
   if (!xAuthed) {
     big.textContent = "—";
     sub.textContent = "sign in with X to start";
     claimBtn.textContent = "connect X first";
     claimBtn.disabled = true;
-    renderXState();
     return;
   }
-  if (!activeAccount) {
+  if (!manualWallet) {
     big.textContent = "—";
-    sub.textContent = "@" + xSession.x_handle + " — now connect your wallet";
-    claimBtn.textContent = "connect wallet";
-    claimBtn.disabled = !walletReady;
-    renderXState();
+    sub.textContent = "@" + xSession.x_handle + " — add your NEAR wallet address";
+    claimBtn.textContent = "add wallet address";
+    claimBtn.disabled = false; // click focuses the field
     return;
   }
-  sub.textContent = "@" + xSession.x_handle + " · " + activeAccount;
-  renderXState();
+  sub.textContent = "@" + xSession.x_handle + " · " + shortAccount(manualWallet) +
+    (activeAccount === manualWallet ? " · signed in" : "");
   try {
-    const e = await view("get_entitlement", { account_id: activeAccount });
+    const e = await view("get_entitlement", { account_id: manualWallet });
     const amount = Number(e);
     big.textContent = amount > 0 ? fmtToken(e) + " wNEAR" : "0";
     claimBtn.textContent = "claim";
-    claimBtn.disabled = amount <= 0;
+    claimBtn.disabled = amount <= 0 || !walletReady;
   } catch (err) {
     sub.textContent = "could not read entitlement";
     claimBtn.textContent = "claim";
@@ -155,29 +183,35 @@ async function refreshMyRewards() {
   }
 }
 
-function initProfile() {
-  const handleInput = document.getElementById("x-handle");
-  const saveBtn = document.getElementById("save-profile");
-  const save = () => {
-    if (!activeAccount) return;
-    let h = handleInput.value.trim();
-    if (h && !h.startsWith("@")) h = "@" + h;
-    handleInput.value = h;
-    saveProfile(activeAccount, h);
-    saveBtn.textContent = "saved";
-    setTimeout(() => { saveBtn.textContent = "save"; }, 1500);
-    refreshMyRewards();
-  };
-  saveBtn.addEventListener("click", save);
-  handleInput.addEventListener("keydown", (e) => { if (e.key === "Enter") save(); });
-}
-
 async function claim() {
   const result = document.getElementById("claim-result");
   const claimBtn = document.getElementById("claim-btn");
-  if (!walletReady) return;
   if (!xSession || !xSession.authenticated) { window.location.href = "/auth/x/login"; return; }
-  if (!activeAccount) { modal.show(); return; }
+  if (!manualWallet) {
+    document.getElementById("wallet-input").focus();
+    result.className = "claim-result err";
+    result.textContent = "add your NEAR wallet address first";
+    return;
+  }
+  if (!walletReady) {
+    result.className = "claim-result err";
+    result.textContent = "wallet connector failed to load — refresh and try again";
+    return;
+  }
+  if (!activeAccount) {
+    // signing is the one step that needs a real wallet — open the picker for that only
+    localStorage.setItem("tag_pending_claim", "1");
+    result.className = "claim-result";
+    result.textContent = "pick a wallet to sign the claim…";
+    modal.show();
+    return;
+  }
+  if (activeAccount !== manualWallet) {
+    result.className = "claim-result err";
+    result.textContent = "signed-in wallet (" + shortAccount(activeAccount) +
+      ") doesn't match the address above — fix it or sign out";
+    return;
+  }
   claimBtn.disabled = true;
   result.className = "claim-result";
   result.textContent = "sign in your wallet…";
@@ -281,6 +315,7 @@ async function main() {
   }
 
   await fetchXSession();
+  initWalletField();
   await initWallet();
   refreshMyRewards();
 }
