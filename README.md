@@ -36,7 +36,7 @@ the chart.
 ## Status
 
 The implementation is on the worker draft branch. GitHub Actions compiles
-the Rust contract and passes its 14 unit tests; the 20 Python tests also pass.
+the Rust contract and passes its 15 unit tests; the 21 Python tests also pass.
 The testnet demo, live site, video, and submission are not complete. See
 `tasks/todo.md` and `tasks/deviations.md` for proof and open gates. No deployed
 address or transaction hash is claimed.

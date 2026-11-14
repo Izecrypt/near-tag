@@ -30,8 +30,8 @@ No product-scope deviations have been approved.
   account, transaction, live site, video, or hackathon submission is claimed.
 - Scoring and simulation utilities are local; the simulation remains
   exploratory and does not satisfy the parameter-recommendation gate.
-- GitHub Actions compiled the contract and passed 14 Rust unit tests on the
-  worker branch (run 43584626007). Local cargo is unavailable, and there is
+- GitHub Actions compiled the contract and passed 15 Rust unit tests on the
+  worker branch (run 43585044305). Local cargo is unavailable, and there is
   still no wasm build or testnet deployment evidence.
 - `refill()` remains a no-op pending verification of the testnet router,
   TAG/wNEAR pool, token storage requirements, and safe minimum-output policy.
