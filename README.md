@@ -35,8 +35,8 @@ the chart.
 
 ## Status
 
-The implementation is on the worker draft branch. GitHub Actions run 43586449270
-passed 15 Rust tests, 22 Python tests (17 attestor + 5 simulation), and the
+The implementation is on the worker draft branch. GitHub Actions run 43586763317
+passed 17 Rust tests, 22 Python tests (17 attestor + 5 simulation), and the
 `wasm32-unknown-unknown` release build. It also uploaded the contract WASM as a
 short-lived workflow artifact.
 The testnet demo, live site, video, and submission are not complete. See
