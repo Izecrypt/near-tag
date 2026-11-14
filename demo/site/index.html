@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TAG on NEAR — tag to earn. the rules are the token.</title>
-<meta name="description" content="TAG is a memecoin where the meme works for its holders: tag the token on X and earn, hold and earn more. Immutable on-chain rules, no admin key.">
+<title>$TAG on NEAR — tag it. hold it. earn it.</title>
+<meta name="description" content="TAG: the memecoin where tagging on X and holding earns you a share of the daily pot. Rules frozen on-chain, no admin key.">
 <link rel="stylesheet" href="styles.css">
 <script type="importmap">
 {
@@ -19,132 +19,100 @@
 <link rel="stylesheet" href="https://esm.sh/@near-wallet-selector/modal-ui-js@8.9.14/styles.css">
 </head>
 <body>
+
 <header class="top">
   <div class="wrap">
-    <div class="brand"><span class="tag-badge">$TAG</span><span class="brand-sub">on NEAR · testnet</span></div>
-    <nav>
-      <a href="#earn">earn</a>
-      <a href="#epoch">epoch</a>
-      <a href="#rules">rules</a>
-      <a href="#honesty">honesty</a>
-      <a href="https://github.com/Izecrypt/near-tag" target="_blank" rel="noopener">repo</a>
-    </nav>
+    <div class="brand"><span class="tag-badge">$TAG</span></div>
+    <div class="epoch-chip"><span class="dot"></span><span id="chip-day">epoch —</span><span class="sep">·</span><span id="chip-countdown">--:--:--</span></div>
     <div class="wallet-area">
-      <button id="connect-btn" class="btn btn-primary">connect wallet</button>
+      <button id="connect-btn" class="btn btn-primary btn-sm">connect</button>
       <div id="wallet-chip" class="wallet-chip hidden">
         <span id="wallet-account"></span>
-        <button id="disconnect-btn" class="btn btn-ghost" title="disconnect">x</button>
+        <button id="disconnect-btn" class="x-btn" title="disconnect">x</button>
       </div>
     </div>
   </div>
 </header>
 
 <main class="wrap">
+
   <section class="hero">
-    <div class="hero-copy">
-      <h1>tag it. hold it.<br><em>earn it.</em></h1>
-      <p class="sub">TAG is a memecoin where the meme works for its holders. tag the token on X with your wallet in the post, hold it, and claim your share of the daily pot. every rule below is frozen in the contract. no admin key, no exceptions.</p>
+    <div class="hero-left">
+      <h1>tag it.<br>hold it.<br><em>earn it.</em></h1>
+      <p class="one-liner">the memecoin that pays its holders for posting.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#earn">check your rewards</a>
-        <a class="btn btn-ghost" id="contract-link" href="#" target="_blank" rel="noopener">view contract</a>
+        <a class="btn btn-primary" href="#earn">claim rewards</a>
+        <a class="btn btn-ghost" href="#how">how it works</a>
       </div>
-      <div id="live-banner" class="live-banner">connecting to testnet…</div>
     </div>
-    <div class="hero-panel" id="epoch">
-      <div class="panel-head"><span>daily epoch</span><span class="dot live-dot"></span></div>
-      <div class="epoch-day" id="epoch-day">—</div>
-      <div class="epoch-row"><span>pot</span><b id="epoch-pot">—</b></div>
-      <div class="epoch-row"><span>paid out</span><b id="epoch-paid">—</b></div>
-      <div class="epoch-row"><span>points scored</span><b id="epoch-points">—</b></div>
-      <div class="countdown" id="countdown">next epoch in —</div>
-    </div>
-  </section>
 
-  <section class="stats" id="live">
-    <div class="stat"><div class="k">treasury</div><div class="v" id="stat-treasury">—</div><div class="s">TAG held by the mechanics contract</div></div>
-    <div class="stat"><div class="k">skim pot</div><div class="v" id="stat-skim">—</div><div class="s">5% of every claim, returned to the pool</div></div>
-    <div class="stat"><div class="k">buyback pot</div><div class="v" id="stat-nearpot">—</div><div class="s">native NEAR reserved for market buybacks</div></div>
-    <div class="stat"><div class="k">validators</div><div class="v" id="stat-validators">2 of 2</div><div class="s">confirmations needed per tag</div></div>
-  </section>
-
-  <section class="earn" id="earn">
-    <h2>your rewards</h2>
-    <p class="sub">connect your testnet wallet. if the attestor scored your tags and your hold, your claimable balance shows here and the claim pays out on-chain with the 5% skim back to the pool.</p>
-    <div class="earn-grid">
-      <div class="card">
-        <div class="k">claimable now</div>
-        <div class="big" id="my-entitlement">—</div>
-        <div class="s" id="my-entitlement-sub">connect wallet to check</div>
-        <button id="claim-btn" class="btn btn-primary btn-block" disabled>claim rewards</button>
+    <div class="swap-card" id="earn">
+      <div class="swap-head">
+        <span>your rewards</span>
+        <a id="contract-link" href="#" target="_blank" rel="noopener" class="contract-link">contract</a>
+      </div>
+      <div class="swap-body">
+        <div class="claim-row">
+          <span class="label">claimable</span>
+          <span class="value" id="my-entitlement">—</span>
+        </div>
+        <div class="claim-sub" id="my-entitlement-sub">connect wallet to check</div>
+        <button id="claim-btn" class="btn btn-primary btn-block" disabled>claim</button>
         <div id="claim-result" class="claim-result"></div>
       </div>
-      <div class="card">
-        <div class="k">how you earn</div>
-        <ul class="mini-loop">
-          <li><b>tag</b> — post $TAG + the token X account + your wallet address. engagement scores points.</li>
-          <li><b>hold</b> — your time-weighted average balance earns too. no last-second farming.</li>
-          <li><b>validate</b> — holder-validators confirm each tag on-chain.</li>
-          <li><b>claim</b> — pull your share. 95% to you, 5% back to the pool.</li>
-        </ul>
+      <div class="swap-foot">
+        <span>95% to you</span><span class="sep">·</span><span>5% back to the pool</span>
       </div>
+    </div>
+  </section>
+
+  <section class="ticker" id="live">
+    <div class="tick"><div class="v" id="stat-treasury">—</div><div class="k">treasury</div></div>
+    <div class="tick"><div class="v" id="stat-skim">—</div><div class="k">skim pot</div></div>
+    <div class="tick"><div class="v" id="stat-pot">—</div><div class="k">last pot</div></div>
+    <div class="tick"><div class="v" id="stat-points">—</div><div class="k">points</div></div>
+  </section>
+
+  <section id="how">
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-t">post $TAG on X<br><span>your wallet in the text</span></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-t">validators confirm<br><span>on-chain votes</span></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-t">daily pot settles<br><span>max 10% of treasury</span></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-t">claim your share<br><span>holding earns too</span></div></div>
     </div>
   </section>
 
   <section class="board">
-    <h2>epoch 20771 board <span class="synthetic">synthetic demo data, settled on-chain</span></h2>
+    <div class="board-head">
+      <h2>epoch <span id="board-day">20771</span> board</h2>
+      <span class="synthetic">synthetic demo, settled on-chain</span>
+    </div>
     <div class="table-wrap">
       <table id="board-table">
-        <thead><tr><th>#</th><th>account</th><th>x</th><th>tags</th><th>tag points</th><th>hold points</th><th>entitled</th></tr></thead>
+        <thead><tr><th>#</th><th>account</th><th>tags</th><th>points</th><th>entitled</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
   </section>
 
-  <section id="rules">
-    <h2>the rules are the token</h2>
-    <p class="sub">every number the contract enforces, read live from chain. none of these can change after launch. there is no owner method, no upgrade path, no parameter setter.</p>
-    <div class="table-wrap">
-      <table id="params-table">
-        <thead><tr><th>parameter</th><th>value</th><th>meaning</th></tr></thead>
-        <tbody></tbody>
-      </table>
+  <section class="rules">
+    <div class="chips" id="rule-chips">
+      <div class="rule"><div class="rv" id="rule-pot">10%</div><div class="rk">max daily pot</div></div>
+      <div class="rule"><div class="rv">≤ hold</div><div class="rk">max you can earn</div></div>
+      <div class="rule"><div class="rv">5%</div><div class="rk">claim skim to pool</div></div>
+      <div class="rule"><div class="rv">frozen</div><div class="rk">params, no admin key</div></div>
+      <div class="rule"><div class="rv">1×</div><div class="rk">pay per fingerprint</div></div>
+      <div class="rule"><div class="rv">×1.5</div><div class="rk">reply to token acct</div></div>
     </div>
-    <div class="table-wrap">
-      <h3>fixed scoring weights</h3>
-      <table>
-        <thead><tr><th>activity</th><th>points</th></tr></thead>
-        <tbody>
-          <tr><td>view</td><td>1</td></tr>
-          <tr><td>like</td><td>50</td></tr>
-          <tr><td>reply</td><td>100</td></tr>
-          <tr><td>retweet</td><td>200</td></tr>
-          <tr><td>quote</td><td>300</td></tr>
-          <tr><td>original post</td><td>×25</td></tr>
-          <tr><td>quote/reply to the token account</td><td>×1.5</td></tr>
-          <tr><td>holding</td><td>0.5 per whole token per day, time-weighted</td></tr>
-        </tbody>
-      </table>
-      <p class="dim small">daily caps: 5 originals, 10 quotes, 15 replies per account. one good post beats fifty spam posts.</p>
-    </div>
+    <div class="weights">view 1 · like 50 · reply 100 · rt 200 · quote 300 · original ×25 · hold 0.5/token/day · caps 5/10/15</div>
   </section>
 
-  <section id="honesty">
-    <h2>honesty limits</h2>
-    <ul class="honest">
-      <li><strong>oracle.</strong> one Ed25519 attestor signs each daily epoch, bound to this contract and chain ID. the contract enforces caps, dedupe, quorum, pot limits and the holding ceiling. validator votes exist to discipline the attestor.</li>
-      <li><strong>demo status.</strong> this hackathon demo runs on NEAR testnet with a labeled synthetic epoch. live mode is the same code, same rules, mainnet token via meme.cooking.</li>
-      <li><strong>sybil limits.</strong> a wallet's first attested X link is permanent. fingerprints can only ever be paid once.</li>
-      <li><strong>buyback.</strong> a NEAR pot is reserved for market buybacks. <code>refill()</code> stays disabled until the Ref testnet pool path is verified. no buyback is claimed as executed.</li>
-      <li><strong>the token itself.</strong> at launch TAG is a factory-standard NEP-141 from meme.cooking: no mint, no fee inside the token, no admin powers over it, ever. the economy lives in this separate mechanics contract.</li>
-    </ul>
-  </section>
+  <p class="fineprint">attestor-signed epochs · validator-confirmed tags · demo epoch labeled synthetic · NEAR testnet · buyback refill disabled until pool verified · <a href="https://github.com/Izecrypt/near-tag" target="_blank" rel="noopener">repo</a></p>
+
 </main>
 
 <footer>
-  <div class="wrap">
-    <span>built by <a href="https://izecube.trenchesnetwork.xyz" target="_blank" rel="noopener">izecube</a> · economy ported from the Trenches tag points spec</span>
-    <a href="https://github.com/Izecrypt/near-tag" target="_blank" rel="noopener">github.com/Izecrypt/near-tag</a>
-  </div>
+  <div class="wrap"><span>built by <a href="https://izecube.trenchesnetwork.xyz" target="_blank" rel="noopener">izecube</a></span><span>NEAR hackathon · memecoins with mechanics</span></div>
 </footer>
 
 <script src="demo-data.js"></script>

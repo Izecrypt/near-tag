@@ -1,24 +1,7 @@
 // TAG on NEAR demo dapp — live contract views + wallet connect + on-chain claim.
-// Wallet selector loads lazily: the read-only views must work even if the CDN is down.
+// Wallet selector loads lazily: read-only views must work even if the CDN is down.
 const CONTRACT_ID = "tagmech-izecube.testnet";
 const RPC = "https://rpc.testnet.fastnear.com";
-const DEMO_DAY = 20771;
-
-const PARAM_LABELS = {
-  token_id: "reward token (NEP-141)",
-  daily_pot_bps: "daily pot, basis points of treasury",
-  skim_bps: "claim skim, basis points returned to pool",
-  validator_cut_bps: "validator cut of the daily pot",
-  validator_threshold: "validator token threshold",
-  validator_confirmations: "net confirmations a tag needs",
-  hold_pts_per_token_day: "holding points per token per day",
-  cap_originals: "daily cap, original posts",
-  cap_quotes: "daily cap, quotes",
-  cap_replies: "daily cap, replies",
-  multiplier_reply_to_token_bps: "reply-to-token multiplier, bps",
-  attestor_pk: "attestor public key (Ed25519)",
-  treasury_seed: "treasury seed at launch",
-};
 
 async function view(method, args) {
   const res = await fetch(RPC, {
@@ -42,16 +25,7 @@ async function view(method, args) {
 
 const fmtWhole = (v) => Number(v).toLocaleString("en-US");
 const fmtToken = (y) => (Number(y) / 1e24).toLocaleString("en-US", { maximumFractionDigits: 4 });
-
-function banner(msg, cls) {
-  const el = document.getElementById("live-banner");
-  el.textContent = msg;
-  el.className = "live-banner " + (cls || "");
-}
-
-function shortAccount(a) {
-  return a.length > 18 ? a.slice(0, 10) + "…" + a.slice(-6) : a;
-}
+function shortAccount(a) { return a.length > 16 ? a.slice(0, 8) + "…" + a.slice(-5) : a; }
 
 /* ---------- wallet ---------- */
 let selector, modal, activeAccount = null, walletReady = false;
@@ -78,7 +52,7 @@ async function initWallet() {
     });
   } catch (e) {
     const btn = document.getElementById("connect-btn");
-    btn.textContent = "wallet unavailable (rpc)";
+    btn.textContent = "rpc";
     btn.disabled = true;
     return;
   }
@@ -118,9 +92,7 @@ async function refreshMyRewards() {
     const e = await view("get_entitlement", { account_id: activeAccount });
     const amount = Number(e);
     big.textContent = amount > 0 ? fmtToken(e) + " wNEAR" : "0";
-    sub.textContent = amount > 0
-      ? `${activeAccount} — ready to claim`
-      : `${activeAccount} — nothing claimable this epoch`;
+    sub.textContent = amount > 0 ? activeAccount : activeAccount + " — nothing claimable";
     claimBtn.disabled = amount <= 0;
   } catch (err) {
     sub.textContent = "could not read entitlement";
@@ -133,7 +105,7 @@ async function claim() {
   if (!activeAccount || !walletReady) return;
   claimBtn.disabled = true;
   result.className = "claim-result";
-  result.textContent = "sign the claim in your wallet…";
+  result.textContent = "sign in your wallet…";
   try {
     const wallet = await selector.wallet();
     const outcome = await wallet.signAndSendTransaction({
@@ -145,34 +117,46 @@ async function claim() {
     });
     const txhash = outcome.transaction.hash || outcome.transactionHash || "";
     result.className = "claim-result ok";
-    result.innerHTML = `claimed. <a href="https://testnet.nearblocks.io/txns/${txhash}" target="_blank" rel="noopener">view tx</a>`;
-    refreshStats();
+    result.innerHTML = `claimed. <a href="https://testnet.nearblocks.io/txns/${txhash}" target="_blank" rel="noopener">tx</a>`;
+    refreshTicker();
     refreshMyRewards();
   } catch (e) {
     const msg = (e && e.message) || String(e);
     result.className = "claim-result err";
-    result.textContent = msg.toLowerCase().includes("user rejected") || msg.toLowerCase().includes("rejected")
-      ? "claim rejected in wallet"
-      : "claim failed: " + msg.slice(0, 140);
+    result.textContent = msg.toLowerCase().includes("reject")
+      ? "rejected in wallet"
+      : "failed: " + msg.slice(0, 120);
     claimBtn.disabled = false;
   }
 }
 
 /* ---------- live data ---------- */
-async function refreshStats() {
-  const [treasury, pots] = await Promise.all([view("treasury"), view("pots")]);
-  document.getElementById("stat-treasury").textContent = fmtToken(treasury) + " wNEAR";
-  document.getElementById("stat-skim").textContent = fmtToken(pots[0]) + " wNEAR";
-  document.getElementById("stat-nearpot").textContent = fmtToken(pots[1]) + " NEAR";
+async function refreshTicker() {
+  const [treasury, pots, epoch] = await Promise.all([
+    view("treasury"), view("pots"), view("get_epoch", { day: latestDay }),
+  ]);
+  document.getElementById("stat-treasury").textContent = fmtToken(treasury);
+  document.getElementById("stat-skim").textContent = fmtToken(pots[0]);
+  if (epoch) {
+    document.getElementById("stat-pot").textContent = fmtToken(epoch.pot);
+    document.getElementById("stat-points").textContent = fmtWhole(epoch.total_points);
+  }
 }
 
+let latestDay = null;
+
 async function loadEpoch() {
-  const epoch = await view("get_epoch", { day: DEMO_DAY });
+  const day = Math.floor(Date.now() / 86400000);
+  let epoch = await view("get_epoch", { day });
+  if (!epoch) {
+    for (let back = 1; back <= 3 && !epoch; back++) {
+      epoch = await view("get_epoch", { day: day - back });
+    }
+  }
   if (!epoch) return false;
-  document.getElementById("epoch-day").textContent = "day " + epoch.day;
-  document.getElementById("epoch-pot").textContent = fmtToken(epoch.pot) + " wNEAR";
-  document.getElementById("epoch-paid").textContent = fmtToken(epoch.total_entitlement) + " wNEAR";
-  document.getElementById("epoch-points").textContent = fmtWhole(epoch.total_points);
+  latestDay = epoch.day;
+  document.getElementById("chip-day").textContent = "epoch " + epoch.day;
+  document.getElementById("board-day").textContent = epoch.day;
   return true;
 }
 
@@ -183,20 +167,7 @@ function tickCountdown() {
   const h = String(Math.floor(s / 3600)).padStart(2, "0");
   const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
   const sec = String(s % 60).padStart(2, "0");
-  document.getElementById("countdown").textContent = `next epoch in ${h}:${m}:${sec}`;
-}
-
-async function loadParams() {
-  const params = await view("get_params");
-  const tbody = document.querySelector("#params-table tbody");
-  for (const [key, label] of Object.entries(PARAM_LABELS)) {
-    let v = params[key];
-    if (key === "attestor_pk") v = v.map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16) + "…";
-    if (key === "validator_threshold" || key === "treasury_seed") v = fmtWhole(v);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${label}</td><td>${v}</td><td>frozen at launch</td>`;
-    tbody.appendChild(tr);
-  }
+  document.getElementById("chip-countdown").textContent = `${h}:${m}:${sec}`;
 }
 
 function loadBoard() {
@@ -204,13 +175,12 @@ function loadBoard() {
   if (!demo) return;
   const tbody = document.querySelector("#board-table tbody");
   const rows = demo.accounts
-    .map(a => ({ ...a, entitled: demo.entitlements[a.account] || "0" }))
+    .map(a => ({ ...a, tag_points: Number(a.tag_points), hold_points: Number(a.hold_points), entitled: demo.entitlements[a.account] || "0" }))
     .sort((a, b) => Number(b.entitled) - Number(a.entitled));
   rows.forEach((a, i) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${i + 1}</td><td>${a.account}</td><td>${a.x || "—"}</td>` +
-      `<td>${a.tags}</td><td>${fmtWhole(a.tag_points)}</td><td>${fmtWhole(a.hold_points)}</td>` +
-      `<td>${fmtToken(a.entitled)}</td>`;
+    tr.innerHTML = `<td>${i + 1}</td><td>${a.account}</td><td>${a.tags}</td>` +
+      `<td>${fmtWhole(a.tag_points + a.hold_points)}</td><td>${fmtToken(a.entitled)}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -222,15 +192,14 @@ async function main() {
   document.getElementById("claim-btn").addEventListener("click", claim);
 
   const settled = await loadEpoch().catch(() => false);
-  banner(settled
-    ? "live: contract reached, epoch day " + DEMO_DAY + " settled on NEAR testnet"
-    : "live: contract reached on NEAR testnet", settled ? "ok" : "err");
-
-  await Promise.all([refreshStats(), loadParams()]);
+  if (settled) await refreshTicker().catch(() => {});
   loadBoard();
   tickCountdown();
   setInterval(tickCountdown, 1000);
   await initWallet();
 }
 
-main().catch(e => banner("could not reach the contract: " + (e.message || e), "err"));
+main().catch(e => {
+  const chip = document.getElementById("chip-day");
+  if (chip) chip.textContent = "rpc unreachable";
+});
