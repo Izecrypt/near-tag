@@ -3,56 +3,106 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TAG on NEAR — the tag-to-earn memecoin with immutable rules</title>
-<meta name="description" content="TAG is a memecoin where the meme works for its holders: tag the token on X and earn, hold and earn more. The economy runs in a NEAR contract with immutable parameters and no admin key.">
+<title>TAG on NEAR — tag to earn. the rules are the token.</title>
+<meta name="description" content="TAG is a memecoin where the meme works for its holders: tag the token on X and earn, hold and earn more. Immutable on-chain rules, no admin key.">
 <link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{
+  "imports": {
+    "near-wallet-selector-core": "https://esm.sh/@near-wallet-selector/core@8.9.14",
+    "near-wallet-selector-modal": "https://esm.sh/@near-wallet-selector/modal-ui-js@8.9.14",
+    "near-wallet-selector-mnw": "https://esm.sh/@near-wallet-selector/my-near-wallet@8.9.14",
+    "near-wallet-selector-meteor": "https://esm.sh/@near-wallet-selector/meteor-wallet@8.9.14"
+  }
+}
+</script>
+<link rel="stylesheet" href="https://esm.sh/@near-wallet-selector/modal-ui-js@8.9.14/styles.css">
 </head>
 <body>
 <header class="top">
   <div class="wrap">
-    <div class="brand"><span class="tag-badge">$TAG</span><span>on NEAR</span></div>
+    <div class="brand"><span class="tag-badge">$TAG</span><span class="brand-sub">on NEAR · testnet</span></div>
     <nav>
-      <a href="#mechanic">mechanic</a>
+      <a href="#earn">earn</a>
+      <a href="#epoch">epoch</a>
       <a href="#rules">rules</a>
       <a href="#honesty">honesty</a>
       <a href="https://github.com/Izecrypt/near-tag" target="_blank" rel="noopener">repo</a>
     </nav>
+    <div class="wallet-area">
+      <button id="connect-btn" class="btn btn-primary">connect wallet</button>
+      <div id="wallet-chip" class="wallet-chip hidden">
+        <span id="wallet-account"></span>
+        <button id="disconnect-btn" class="btn btn-ghost" title="disconnect">x</button>
+      </div>
+    </div>
   </div>
 </header>
 
 <main class="wrap">
   <section class="hero">
-    <h1>most memecoins are a picture and a prayer.<br>this one <em>works</em> for you.</h1>
-    <p class="sub">hold TAG, tag it on X with your wallet in the post, earn your share of the daily pot.
-    the rules below are not a promise in a whitepaper. they are frozen on-chain, with no admin key.</p>
-    <div class="chips">
-      <a class="chip" id="contract-chip" href="#" target="_blank" rel="noopener">contract: …</a>
-      <span class="chip dim">track: memecoins with mechanics · NEAR hackathon</span>
+    <div class="hero-copy">
+      <h1>tag it. hold it.<br><em>earn it.</em></h1>
+      <p class="sub">TAG is a memecoin where the meme works for its holders. tag the token on X with your wallet in the post, hold it, and claim your share of the daily pot. every rule below is frozen in the contract. no admin key, no exceptions.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#earn">check your rewards</a>
+        <a class="btn btn-ghost" id="contract-link" href="#" target="_blank" rel="noopener">view contract</a>
+      </div>
+      <div id="live-banner" class="live-banner">connecting to testnet…</div>
     </div>
-    <div id="live-banner" class="live-banner">connecting to testnet…</div>
+    <div class="hero-panel" id="epoch">
+      <div class="panel-head"><span>daily epoch</span><span class="dot live-dot"></span></div>
+      <div class="epoch-day" id="epoch-day">—</div>
+      <div class="epoch-row"><span>pot</span><b id="epoch-pot">—</b></div>
+      <div class="epoch-row"><span>paid out</span><b id="epoch-paid">—</b></div>
+      <div class="epoch-row"><span>points scored</span><b id="epoch-points">—</b></div>
+      <div class="countdown" id="countdown">next epoch in —</div>
+    </div>
   </section>
 
   <section class="stats" id="live">
     <div class="stat"><div class="k">treasury</div><div class="v" id="stat-treasury">—</div><div class="s">TAG held by the mechanics contract</div></div>
     <div class="stat"><div class="k">skim pot</div><div class="v" id="stat-skim">—</div><div class="s">5% of every claim, returned to the pool</div></div>
     <div class="stat"><div class="k">buyback pot</div><div class="v" id="stat-nearpot">—</div><div class="s">native NEAR reserved for market buybacks</div></div>
-    <div class="stat"><div class="k">latest epoch</div><div class="v" id="stat-epoch">—</div><div class="s" id="stat-epoch-sub">day / pot / paid out</div></div>
+    <div class="stat"><div class="k">validators</div><div class="v" id="stat-validators">2 of 2</div><div class="s">confirmations needed per tag</div></div>
   </section>
 
-  <section id="mechanic">
-    <h2>the loop</h2>
-    <ol class="loop">
-      <li><strong>tag.</strong> post on X with the token cashtag, the token's X account, and your wallet address in the text. the attestor scores the engagement.</li>
-      <li><strong>hold.</strong> your time-weighted average balance across the day also earns. buying at the last second does not farm it.</li>
-      <li><strong>validate.</strong> holders above the threshold vote on each tag on-chain. confirmed tags pay; fabricated tags burn validator credibility for nothing.</li>
-      <li><strong>settle.</strong> once a day the attestor submits the signed epoch. the pot is at most 10% of the treasury, and nobody can earn more than they held that day.</li>
-      <li><strong>claim.</strong> rewards are pulled, not pushed. every claim takes a 5% skim back to the treasury. every reward feeds the pool.</li>
-    </ol>
+  <section class="earn" id="earn">
+    <h2>your rewards</h2>
+    <p class="sub">connect your testnet wallet. if the attestor scored your tags and your hold, your claimable balance shows here and the claim pays out on-chain with the 5% skim back to the pool.</p>
+    <div class="earn-grid">
+      <div class="card">
+        <div class="k">claimable now</div>
+        <div class="big" id="my-entitlement">—</div>
+        <div class="s" id="my-entitlement-sub">connect wallet to check</div>
+        <button id="claim-btn" class="btn btn-primary btn-block" disabled>claim rewards</button>
+        <div id="claim-result" class="claim-result"></div>
+      </div>
+      <div class="card">
+        <div class="k">how you earn</div>
+        <ul class="mini-loop">
+          <li><b>tag</b> — post $TAG + the token X account + your wallet address. engagement scores points.</li>
+          <li><b>hold</b> — your time-weighted average balance earns too. no last-second farming.</li>
+          <li><b>validate</b> — holder-validators confirm each tag on-chain.</li>
+          <li><b>claim</b> — pull your share. 95% to you, 5% back to the pool.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="board">
+    <h2>epoch 20771 board <span class="synthetic">synthetic demo data, settled on-chain</span></h2>
+    <div class="table-wrap">
+      <table id="board-table">
+        <thead><tr><th>#</th><th>account</th><th>x</th><th>tags</th><th>tag points</th><th>hold points</th><th>entitled</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </section>
 
   <section id="rules">
     <h2>the rules are the token</h2>
-    <p class="sub">every number the contract enforces, read live from chain. none of these can be changed after launch. there is no owner method, no upgrade path, no parameter setter.</p>
+    <p class="sub">every number the contract enforces, read live from chain. none of these can change after launch. there is no owner method, no upgrade path, no parameter setter.</p>
     <div class="table-wrap">
       <table id="params-table">
         <thead><tr><th>parameter</th><th>value</th><th>meaning</th></tr></thead>
@@ -81,11 +131,11 @@
   <section id="honesty">
     <h2>honesty limits</h2>
     <ul class="honest">
-      <li><strong>oracle.</strong> one Ed25519 attestor signs each daily epoch, bound to this contract and chain ID. the contract enforces caps, dedupe, quorum, pot limits and the holding ceiling. it cannot independently verify X engagement; validator votes exist to discipline that.</li>
-      <li><strong>demo status.</strong> the hackathon demo epoch is labeled synthetic and runs on NEAR testnet. live mode is the same code, same rules.</li>
-      <li><strong>sybil limits.</strong> a wallet's first attested X link is permanent. the contract does not prove real-world identity; fingerprints can only ever be paid once.</li>
-      <li><strong>buyback.</strong> a NEAR pot is reserved for market buybacks. the <code>refill()</code> swap is disabled until the testnet router and pool path are verified. no buyback is claimed as executed.</li>
-      <li><strong>the token itself.</strong> at launch, TAG is a factory-standard NEP-141 from meme.cooking: no mint, no transfer fee inside the token, no admin powers over it, ever. the 5% skim and the treasury live in this separate mechanics contract.</li>
+      <li><strong>oracle.</strong> one Ed25519 attestor signs each daily epoch, bound to this contract and chain ID. the contract enforces caps, dedupe, quorum, pot limits and the holding ceiling. validator votes exist to discipline the attestor.</li>
+      <li><strong>demo status.</strong> this hackathon demo runs on NEAR testnet with a labeled synthetic epoch. live mode is the same code, same rules, mainnet token via meme.cooking.</li>
+      <li><strong>sybil limits.</strong> a wallet's first attested X link is permanent. fingerprints can only ever be paid once.</li>
+      <li><strong>buyback.</strong> a NEAR pot is reserved for market buybacks. <code>refill()</code> stays disabled until the Ref testnet pool path is verified. no buyback is claimed as executed.</li>
+      <li><strong>the token itself.</strong> at launch TAG is a factory-standard NEP-141 from meme.cooking: no mint, no fee inside the token, no admin powers over it, ever. the economy lives in this separate mechanics contract.</li>
     </ul>
   </section>
 </main>
@@ -97,6 +147,7 @@
   </div>
 </footer>
 
-<script src="app.js"></script>
+<script src="demo-data.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
