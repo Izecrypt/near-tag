@@ -146,15 +146,19 @@ Two modes:
 
 - `demo` (default, required for the hackathon demo): generates ONE labeled
   synthetic epoch: N demo wallets (created on testnet), synthetic X posts in
-  real format ($TAG + @tokenaccount + wallet), engagement numbers drawn from
-  a seeded RNG, TWAP from real balance sampling, validators = 2 demo
-  accounts that sign confirmations. Every synthetic element is flagged
-  `"demo": true` in the payload and the README says so plainly.
+  real format ($nTAG + @tokenaccount — never a wallet address), engagement
+  numbers drawn from a seeded RNG, TWAP from real balance sampling,
+  validators = 2 demo accounts that sign confirmations. Every synthetic
+  element is flagged `"demo": true` in the payload and the README says so
+  plainly.
 - `live` (production path, stubbed): X recent-search ingestion → engagement
   fetch → fingerprint (canonical: sha1(normalized text) + author id) →
-  scoring per R2 → caps → validator web UI/API for confirmations → epoch
-  build + ed25519 sign + submit. Ship the scoring module fully implemented
-  and unit-tested; the X fetcher may be a thin adapter.
+  poster's wallet resolved via the OAuth-verified binding
+  (`bindings.py` reads the tag-auth profile DB; posts never contain wallet
+  addresses) → scoring per R2 → caps → validator web UI/API for
+  confirmations → epoch build + ed25519 sign + submit. Ship the scoring
+  module fully implemented and unit-tested; the X fetcher may be a thin
+  adapter.
 
 Components: `score.py` (pure functions: tag scoring, caps, multiplier),
 `twap.py` (balance sampler via near RPC), `validate.py` (confirmation

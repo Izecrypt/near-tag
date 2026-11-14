@@ -38,9 +38,13 @@ factory-standard NEP-141. The mechanics contract has NO power over the token
 (cannot mint, burn, freeze, or modify transfers).
 
 ### R2 — tagging stream
-A tag counts only if the post contains: `$TICKER` + `@<token_x_account>` +
-the holder's NEAR wallet address (post-your-wallet linking). Scoring (exact
-Trenches table):
+A tag counts only if the post contains: `$TICKER` + `@<token_x_account>`.
+The poster's wallet is resolved through the X-OAuth binding: the poster
+signs in with X on the TAG site (OAuth 2.0 PKCE), which server-verifies
+the handle and binds it to the NEAR address the poster provides. The
+attestor reads that binding at scoring time (`attestor/bindings.py`);
+posts never contain wallet addresses. One X account per wallet,
+first-link wins on-chain. Scoring (exact Trenches table):
 
 - view 1 / like 50 / reply 100 / RT 200 / quote 300
 - original posts ×25; replies ×1
@@ -93,8 +97,9 @@ Static site: parameters, treasury balance, buyback pots, epoch history, top
 taggers, personal entitlement + claim button (MyNearWallet via near-api-js).
 
 ### R9 — honesty (README, required by the track)
-Sybil/limits written plainly: wallet↔X link via posted address (one X
-account per wallet, first-link wins); canonical fingerprint dedup per post;
+Sybil/limits written plainly: wallet↔X link via X-OAuth sign-in on the
+TAG site (server-verified binding, one X account per wallet, first-link
+wins on-chain); canonical fingerprint dedup per post;
 TWAP hold requirement; daily pot cap; per-account earn cap = TWAP balance;
 validator collusion bounded by the 10% cut and the confirmation count;
 DEMO epoch data is labeled as such.

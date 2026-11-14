@@ -18,9 +18,10 @@ the chart.
    admin powers over it, ever.
 2. The **mechanics contract** holds a reward treasury (seeded at launch).
 3. Every day, two streams earn points:
-   - **Tagging**: posts on X containing the token's cashtag + X account +
-     your wallet address. Scored by the Trenches engagement table, capped
-     per day, verified by validators.
+   - **Tagging**: posts on X containing the token's cashtag + X account.
+     Your wallet is bound by signing in with X on the site (OAuth, one
+     click) — no wallet address ever goes in a post. Scored by the
+     Trenches engagement table, capped per day, verified by validators.
    - **Holding**: your time-weighted average balance across the day.
 4. Validators (holders above a threshold) confirm tag proofs and take a 10%
    cut of the daily pot.
@@ -63,8 +64,9 @@ Demo target: NEAR hackathon track `memecoins`, submission before
 | Hold | 0.5 per whole token per day, time-weighted |
 
 Daily tag caps are 5 originals, 10 quotes, and 15 replies. A post is eligible
-only when the attestor identifies the cashtag, token X account, and wallet
-link; validator votes are separate on-chain transactions.
+only when the attestor identifies the cashtag and token X account, and the
+poster's handle resolves to a wallet through the OAuth-verified binding;
+validator votes are separate on-chain transactions.
 
 ## Simulation status
 
@@ -105,11 +107,13 @@ and `sim/out/results.csv`.
   signature and enforces daily scoring caps, fingerprint deduplication,
   validator quorum, the pot limit, and the per-account TWAP ceiling; it
   cannot independently verify X engagement or the attestor's TWAP samples.
-- **Demo status:** no demo epoch has been submitted. Future generated posts
-  and engagement must be labeled synthetic DEMO data.
-- **Sybil limits:** a wallet's first attested X-account link is permanent;
-  the contract does not prove real-world identity, and separate wallets may
-  still be controlled by one person. Fingerprints can only be paid once.
+- **Demo status:** the settled demo epoch (day 20771) and its demo posts
+  were generated, labeled synthetic data; future generated epochs and
+  engagement must be labeled the same way.
+- **Sybil limits:** the wallet↔X link is created by OAuth sign-in on the
+  TAG site and is first-write-wins on-chain; the contract does not prove
+  real-world identity, and separate wallets may still be controlled by
+  one person. Fingerprints can only be paid once.
 - **Validators:** each registered validator submits an on-chain vote;
   confirmations are reward-only, without slashing. A tag needs the configured
   net confirmation count. Validator rewards are bounded

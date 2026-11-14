@@ -41,9 +41,11 @@ def build_demo_epoch(day, token_x_account, contract_id="tagmech.testnet",
         tags = []
         tag_total = 0
         for tag_index, kind in enumerate(kinds, 1):
-            wallet = account_id
-            text = "%s %s %s %s demo %s post %d" % (
-                "$TAG", token_x_account, wallet, x_account, kind, tag_index)
+            # Synthetic post in the live-rule format: cashtag + token account.
+            # The poster's wallet never appears in post text; identity comes
+            # from the OAuth-verified binding (attestor/bindings.py).
+            text = "%s %s demo %s post %d" % (
+                "$nTAG", token_x_account, kind, tag_index)
             counts = {
                 "views": rng.randint(25, 240),
                 "likes": rng.randint(1, 22),

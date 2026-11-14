@@ -4,10 +4,12 @@
 
 1. **Cold open (15s)**: "Most memecoins are a picture and a prayer. This one
    works for you." Show the token page.
-2. **The mechanic (30s)**: hold TAG, tag it on X with your wallet in the
-   post. Engagement scores points (show the table). Holding scores too,
-   time-weighted, so you can't farm it by buying at the last second.
-   Every raid has points; caps mean one good post beats fifty spam posts.
+2. **The mechanic (30s)**: hold nTAG, tag it on X — one post with
+   `$nTAG + @its_izecube`. Sign in with X on the site once to bind your
+   wallet (OAuth — the address never goes in a post). Engagement scores
+   points (show the table). Holding scores too, time-weighted, so you
+   can't farm it by buying at the last second. Every raid has points;
+   caps mean one good post beats fifty spam posts.
 3. **The rules are the token (30s)**: show `get_params` on the explorer.
    "Every number you see was frozen at launch. There is no admin key. The
    contract can hold and distribute its treasury, but it can never mint,
