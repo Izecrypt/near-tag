@@ -11,8 +11,9 @@ Read this before Architecture.md when you need a quick re-orient.
    exist. Tests must prove this.
 3. Rewards are PULL: `submit_epoch` stores entitlements, users call
    `claim()`. Claim = 95% user / 5% treasury skim.
-4. Daily pot ≤ 10% of treasury. Per-account earn ≤ its time-weighted balance
-   for that day. Points pay pro-rata (tag points + hold points).
+4. Daily pot ≤ 10% of treasury net of outstanding gross entitlements.
+   Per-account earn ≤ its time-weighted balance for that day. Points pay
+   pro-rata (tag points + hold points).
 5. Validators confirm tags; 10% of the pot goes to validators pro-rata by
    confirmed tags. Registration requires ≥ 5,000 tokens.
 6. `refill()` is permissionless: swaps the contract's NEAR pot for TAG on
@@ -40,7 +41,10 @@ cd contract && cargo near build        # or cargo build --target wasm32
 # tests
 cd contract && cargo test
 # demo attestor (testnet)
-cd attestor && python3 demo_seed.py --count 8 --validators 2
+cd attestor && python3 demo_seed.py --token-x-account @tag --contract tagmech.testnet
+cd attestor && python3 submit_votes.py --day DAY --contract tagmech.testnet \
+  --validator-key tagvalidator1.testnet=/path/v1.json \
+  --validator-key tagvalidator2.testnet=/path/v2.json
 cd attestor && python3 submit.py --epoch out/epoch.json
 # sim
 cd sim && python3 simulate.py

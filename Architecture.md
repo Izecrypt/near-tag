@@ -72,7 +72,9 @@ it is the spec, not a parameter.
 - `epoch_log: Vector<EpochSummary>` (day, pot, validator_cut, total_points,
   treasury_after) — bounded, keep last 90
 - `validators: UnorderedSet<AccountId>` (registered, balance-checked at
-  validation time)
+  registration)
+- `validator_votes` keyed by day/fingerprint, plus an indexed key list capped
+  at 60,000 fingerprints/day for cleanup after settlement
 - `linked_x: LookupMap<AccountId, String>` (wallet -> x account, first
   attestation wins)
 - `skim_pot: u128` internal accounting is just balance deltas; track
@@ -87,25 +89,29 @@ it is the spec, not a parameter.
 view get_params() -> Params
 view get_entitlement(account) -> U128
 view get_epoch(day) -> Option<EpochSummary>
-view treasury() -> U128                // ft_balance_of(token, env::current_account_id)
+view treasury() -> U128                // internal ledger from ft_transfer_call deposits
 view pots() -> (skim_pot: U128, near_pot: U128)
 
 register_validator()                   // asserts ft_balance_of(caller) >= threshold
+submit_vote(day, fingerprint, approve) // registered caller; one vote/tag/day
 submit_epoch(epoch: SignedEpochPayload)
    // verifies attestor ed25519 signature over payload hash
-   // payload: day, Vec<AccountScore { account, x_account, tag_points,
+   // - require payload contract_id == current account and network_id == env::chain_id()
+   // payload: day, demo, contract_id, network_id,
+   //   Vec<AccountScore { account, x_account, tag_points,
    //   hold_points, twap_balance, tags: Vec<TagProof { fingerprint,
-   //   points, confirmations: Vec<AccountId> }> }>
+   //   engagement counts }> }>; votes are separate on-chain calls
    // - day must be current_day+1
    // - tag dedup: reject any fingerprint in tag_registry; insert after settle
    // - link wallet->x on first appearance
-   // - validator math: per tag, net confirmations = confirms - rejects,
+   // - validator math reads on-chain votes; net confirmations = confirms - rejects,
    //   must be >= validator_confirmations, else tag excluded
-   // - pot = min(daily_pot_bps * treasury / 10000, treasury)
+   // - pot = min(daily_pot_bps * unreserved treasury / 10000, unreserved treasury)
    // - validator_cut = validator_cut_bps * pot / 10000
    // - remaining split pro-rata by points among accounts whose payout
    //   (share + validator cut share) <= twap_balance; excess stays
    // - validator_cut split pro-rata by confirmed-tag counts among validators
+   // - remove all recorded vote rows for the settled day
    // - add all amounts to entitlements; emit EpochSettled event
 claim()
    // amount = entitlements[caller]; assert > 0
@@ -117,8 +123,8 @@ refill()
    //   swap near_pot NEAR -> TAG on Ref Finance (testnet router),
    //   near_pot = 0; received TAG is treasury (no-op accounting)
    //   cross-contract call with callback; failure leaves near_pot intact
-ft_on_transfer / ft_resolve_transfer   // NEP-141 receiver: accept TAG (seeding,
-   // raid fuel) and wNEAR/NEAR deposits tracked to near_pot
+deposit_near()                         // payable native NEAR buyback-pot deposit
+ft_on_transfer()                       // accept TAG only; return unrelated tokens
 ```
 
 ### Invariants (tests must prove)
@@ -126,7 +132,9 @@ ft_on_transfer / ft_resolve_transfer   // NEP-141 receiver: accept TAG (seeding,
 1. No method mutates `params`. Ever.
 2. `treasury` can only decrease via `claim` (and by exactly the user
    portion) or `refill`-swap failures; skim stays.
-3. An epoch's total entitlement ≤ pot ≤ 10% of treasury at settle time.
+3. An epoch's total entitlement ≤ pot ≤ 10% of unreserved treasury at settle
+   time, where unreserved treasury = accounted treasury minus all outstanding
+   gross entitlements.
 4. No account's epoch payout exceeds its `twap_balance`.
 5. A fingerprint can only be paid once, ever.
 6. `claim` can only transfer what is entitled; reentrancy-safe via

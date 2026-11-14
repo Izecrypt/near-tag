@@ -4,20 +4,28 @@ Deadline 2026-11-14 23:59 UTC. Work top to bottom. [G#] = verification gate.
 
 ## Phase 1 — contract (est. 4h)
 
-- [ ] 1.1 `cargo init` near-sdk contract in `contract/`. Params struct,
-      storage, `new()` exactly per Architecture.md §2.
-- [ ] 1.2 Scoring constants fixed in code (R2 table + caps + multiplier).
-- [ ] 1.3 `submit_epoch` with ed25519 payload verification, day sequencing,
-      fingerprint dedup, wallet↔x linking, pot/cap math, entitlement store.
-- [ ] 1.4 `claim()` with 95/5 split, reentrancy-safe ordering.
-- [ ] 1.5 `register_validator`, confirmation accounting, validator cut.
-- [ ] 1.6 NEP-141 receiver (`ft_on_transfer` accepting TAG deposits to
-      treasury; NEAR pot tracking for buyback).
+- [x] 1.1 near-sdk contract in `contract/`; Params, storage, one-shot `new()`.
+      Proof: GitHub Actions run 43587463639 compiles the WASM target.
+- [x] 1.2 Scoring constants fixed in code (R2 table + caps + multiplier).
+      Proof: Rust scoring tests pass in GitHub Actions run 43587463639.
+- [x] 1.3 `submit_epoch`: Ed25519/domain validation, day sequencing,
+      fingerprint dedup, first-write wallet↔X links, pot/cap math, entitlements.
+      Proof: contract tests and WASM build, run 43587463639.
+- [x] 1.4 `claim()` with 95/5 split, pre-transfer state update, failure restore.
+      Proof: claim arithmetic and failed-transfer restoration contract tests,
+      run 43587463639.
+- [x] 1.5 Validator registration, separate approve/reject votes, quorum, cut.
+      Proof: validator tests in run 43587463639; reviewer still audits invariants.
+- [x] 1.6 NEP-141 TAG receiver and separate payable native-NEAR pot.
+      Proof: receiver and native-NEAR unit tests pass in run 43587463639. Cross-contract FT mock integration remains open.
 - [ ] 1.7 `refill()` with Ref testnet swap + callback; graceful skip if no
       pool.
-- [ ] 1.8 Views: get_params, get_entitlement, get_epoch, treasury, pots.
+- [x] 1.8 Views: get_params, get_entitlement, get_epoch, treasury, pots.
+      Proof: public view methods compiled in run 43587463639.
 - [ ] 1.9 Unit tests incl. ALL six invariants (Architecture.md §2).
-      [G1: cargo test green]
+      `cargo test` passes 19 tests and the WASM release target builds in GitHub
+      Actions run 43587463639. Other-machine six-invariant review remains open,
+      so this item is not closed.
 
 ## Phase 2 — deploy + attestor demo (est. 2.5h)
 
@@ -28,12 +36,15 @@ Deadline 2026-11-14 23:59 UTC. Work top to bottom. [G#] = verification gate.
       ed25519, record it in tasks/HANDBACK.md).
       [G2: explorer link recorded]
 - [ ] 2.3 Seed treasury (transfer TAG from token deployer), seed NEAR pot.
-- [ ] 2.4 `attestor/score.py` pure scoring module + unit tests.
-- [ ] 2.5 `attestor/demo_seed.py`: synthetic labeled epoch (8 users, mixed
-      original/reply/quote tags, seeded RNG).
-- [ ] 2.6 `attestor/twap.py`: real balance sampling via RPC for demo users.
-- [ ] 2.7 `attestor/submit.py`: sign + submit epoch; validators sign
-      confirmations.
+- [x] 2.4 `attestor/score.py` pure scoring module + unit tests. Proof:
+      `python3 -m unittest attestor.test_score` — 4 tests passed (2026-11-14).
+- [x] 2.5 `attestor/demo_seed.py`: synthetic labeled epoch (8 users, mixed
+      original/reply/quote tags, deterministic data). Proof: generator test.
+- [x] 2.6 `attestor/twap.py`: real balance sampling via RPC for demo users.
+      Proof: RPC parsing and TWAP arithmetic tests; no live testnet sample yet.
+- [x] 2.7 `attestor/submit.py` + `submit_votes.py`: explicit testnet CLI/key
+      paths for epoch submission and separate validator votes. Proof: command
+      tests; no live submission yet.
 - [ ] 2.8 Run full demo epoch; then ≥3 `claim()` calls.
       [G3: epoch tx hash + ≥3 claim tx hashes recorded; skim visible on
       balances; refill() executed or documented skip]
@@ -44,10 +55,12 @@ Deadline 2026-11-14 23:59 UTC. Work top to bottom. [G#] = verification gate.
       near-api-js; claim box with MyNearWallet.
 - [ ] 3.2 Serve locally, verify against deployed contract.
       [G4: screenshot or local URL reading live state]
-- [ ] 3.3 `sim/simulate.py`: 3 scenarios x 60 days, treasury curves with/
-      without skim, depletion table, parameter recommendations.
-- [ ] 3.4 Charts to `sim/out/`, results table into README.
-      [G5: sim section in README]
+- [x] 3.3 `sim/simulate.py`: 3 scenarios × 60 days, treasury curves with/
+      without skim, 10/20/30% seed, 0/25/50/100 hold-points and 500/1000/1500
+      bps sweep; baseline follows owner-approved settings. Proof:
+      `cd sim && python3 simulate.py`; 5 simulation tests pass locally.
+- [x] 3.4 Charts to `sim/out/`, results table into README.
+      [G5: README and `sim/out/parameter_sweep.csv`; illustrative only]
 
 ## Phase 4 — README, video script, handback (est. 1h)
 

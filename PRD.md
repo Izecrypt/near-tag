@@ -14,6 +14,10 @@ and holding it (time-weighted). A fixed-supply treasury pays the rewards; a
 5% claim skim and launch-funded buybacks keep the pool alive; every parameter
 is frozen at launch with no admin key.
 
+The launch baseline allocates 20% of initial token supply to the rewards
+treasury. This is a pre-launch supply allocation, not an admin-adjustable
+parameter after deployment.
+
 The economy is a trustless port of the TAG bagworking system designed for the
 Trenches platform (points economy spec, Ize-confirmed 2026-09-20). Trenches
 proved the design; TAG on NEAR removes the admin.
@@ -56,12 +60,13 @@ token held per day; tuning via `sim/`).
 Once per day the attestor submits the epoch (signed): per-account
 {tag_points, hold_points, twap_balance, linked_x_account, counted_tag_ids}.
 Contract computes:
-- `pot = min(daily_pot_bps (1000 = 10%) * treasury / 10_000, treasury)`
+- `available = treasury - outstanding_gross_entitlements`
+- `pot = min(daily_pot_bps (1000 = 10%) * available / 10_000, available)`
 - `validator_cut = validator_cut_bps (1000 = 10%) * pot` split pro-rata
   among validators by confirmed tags
 - remainder split pro-rata by total points
 - per-account payout capped at its `twap_balance` (earn no more than you
-  held, per day)
+  held, per day); this is a per-epoch/day cap
 Entitlements are stored; users **claim** (pull pattern).
 
 ### R5 — the 5% and the buyback
@@ -73,8 +78,9 @@ Entitlements are stored; users **claim** (pull pattern).
 ### R6 — validators
 - Registration: any account holding ≥ `validator_threshold` (set at launch;
   start: 5,000 tokens) registers as validator.
-- Validation: validators confirm/reject each submitted tag (post exists,
-  matches fingerprint, engagement numbers plausible). A tag needs ≥
+- Validation: validators call `submit_vote` to confirm/reject each submitted
+  tag (post exists, matches fingerprint, engagement numbers plausible). Votes
+  are recorded on-chain independently of the attestor-signed epoch. A tag needs ≥
   `validator_confirmations` (start: 2) net confirmations to count.
 - Validator rewards: pro-rata share of the 10% cut by tags confirmed.
 
