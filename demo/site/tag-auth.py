@@ -68,7 +68,7 @@ class Handler(BaseHTTPRequestHandler):
             if part.startswith("tag_session="):
                 token = part.split("=", 1)[1]
                 row = db.execute("SELECT x_id, x_handle, wallet, expires FROM sessions WHERE token=?", (token,)).fetchone()
-                if row and row[2] > now():
+                if row and row[3] > now():
                     return {"token": token, "x_id": row[0], "x_handle": row[1], "wallet": row[2] if isinstance(row[2], str) else None, "expires": row[3]}
         return None
 
